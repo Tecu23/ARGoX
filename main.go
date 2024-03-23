@@ -7,6 +7,7 @@ func main() {
 	InitKingAttacks()
 
 	for i := A1; i <= H8; i++ {
-		KingAttacks[i].PrintBitboard()
+		b := generateRookAttacks(i)
+		b.PrintBitboard()
 	}
 }
