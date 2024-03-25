@@ -2,10 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math/bits"
 )
 
 // Bitboard represent a 64 bit unsigned integer
 type Bitboard uint64
+
+// Count should count the number of ones in a 64 bit number
+func (b Bitboard) Count() int {
+	return bits.OnesCount64(uint64(b))
+}
 
 // Set should set the bit at position pos to 1
 func (b *Bitboard) Set(pos int) {
@@ -20,6 +26,26 @@ func (b *Bitboard) Test(pos int) bool {
 // Clear should remove the bit at position pos
 func (b *Bitboard) Clear(pos int) {
 	*b &= Bitboard(^(uint64(1) << uint(pos)))
+}
+
+// FirstOne should retrieve the index of the least significant first bit
+func (b *Bitboard) FirstOne() int {
+	bit := bits.TrailingZeros64(uint64(*b))
+	if bit == 64 {
+		return 64
+	}
+	*b = (*b >> uint(bit+1)) << uint(bit+1)
+	return bit
+}
+
+// LastOne should retrieve the index of the most significant first bit
+func (b *Bitboard) LastOne() int {
+	bit := bits.LeadingZeros64(uint64(*b))
+	if bit == 64 {
+		return 64
+	}
+	*b = (*b << uint(bit+1)) >> uint(bit+1)
+	return 63 - bit
 }
 
 // returns the full bitstring (with leading zeroes) of the bitBoard

@@ -122,6 +122,48 @@ func generateBishopAttacks(square int) Bitboard {
 	return attacks
 }
 
+func generateBishopAttacksOnTheFly(square int, block Bitboard) Bitboard {
+	attacks := Bitboard(0)
+
+	// init rank & files
+	r, f := 0, 0
+
+	// init target rank & files
+	tr := square / 8
+	tf := square % 8
+
+	// mask relevant bishop occupancy bits
+	for r, f = tr+1, tf+1; r <= 7 && f <= 7; r, f = r+1, f+1 {
+		attacks |= 1 << (r*8 + f)
+		if (1<<(r*8+f))&block != 0 {
+			break
+		}
+	}
+
+	for r, f = tr-1, tf+1; r >= 0 && f <= 7; r, f = r-1, f+1 {
+		attacks |= 1 << (r*8 + f)
+		if (1<<(r*8+f))&block != 0 {
+			break
+		}
+	}
+
+	for r, f = tr+1, tf-1; r <= 7 && f >= 0; r, f = r+1, f-1 {
+		attacks |= 1 << (r*8 + f)
+		if (1<<(r*8+f))&block != 0 {
+			break
+		}
+	}
+
+	for r, f = tr-1, tf-1; r >= 0 && f >= 0; r, f = r-1, f-1 {
+		attacks |= 1 << (r*8 + f)
+		if (1<<(r*8+f))&block != 0 {
+			break
+		}
+	}
+
+	return attacks
+}
+
 // generateRookAttacks should generate all attacks for a rook in a certain square
 func generateRookAttacks(square int) Bitboard {
 	attacks := Bitboard(0)
@@ -148,6 +190,48 @@ func generateRookAttacks(square int) Bitboard {
 
 	for f = tf - 1; f >= 1; f-- {
 		attacks |= 1 << (tr*8 + f)
+	}
+
+	return attacks
+}
+
+func generateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
+	attacks := Bitboard(0)
+
+	// init rank & files
+	r, f := 0, 0
+
+	// init target rank & files
+	tr := square / 8
+	tf := square % 8
+
+	// mask relevant bishop occupancy bits
+	for r = tr + 1; r <= 7; r++ {
+		attacks |= 1 << (r*8 + tf)
+		if (1<<(r*8+tf))&block != 0 {
+			break
+		}
+	}
+
+	for f = tf + 1; f <= 7; f++ {
+		attacks |= 1 << (tr*8 + f)
+		if (1<<(tr*8+f))&block != 0 {
+			break
+		}
+	}
+
+	for r = tr - 1; r >= 0; r-- {
+		attacks |= 1 << (r*8 + tf)
+		if (1<<(r*8+tf))&block != 0 {
+			break
+		}
+	}
+
+	for f = tf - 1; f >= 0; f-- {
+		attacks |= 1 << (tr*8 + f)
+		if (1<<(tr*8+f))&block != 0 {
+			break
+		}
 	}
 
 	return attacks
