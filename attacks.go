@@ -236,3 +236,22 @@ func generateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
 
 	return attacks
 }
+
+func setOccupancy(index, bitsInMask int, attackMask Bitboard) Bitboard {
+	// occupancy map
+	occupancy := Bitboard(0)
+
+	// loop over the range of bits withing attackMask
+	for count := 0; count < bitsInMask; count++ {
+		// get LSB index of attacks mask
+		square := attackMask.FirstOne()
+
+		// make sure occupancy is on board
+		if index&(1<<count) != 0 {
+			// populate occupancy map
+			occupancy |= (1 << square)
+		}
+	}
+
+	return occupancy
+}
