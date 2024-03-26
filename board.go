@@ -6,11 +6,36 @@ import "fmt"
 type BoardStruct struct {
 	Bitboards [12]Bitboard // define piece bitboards
 
-	Occupancies [3]Bitboard // define occupancy bitboards
+	Occupancies [3]Bitboard // define occupancy bitboards (black, white and all occupancies)
 
 	SideToMove Color
 	EnPassant  int
 	Castlings
+}
+
+// Clear should clear the board, flags, bitboards etc
+func (b *BoardStruct) Clear() {
+	b.SideToMove = WHITE
+	// b.Rule50 = 0
+	b.EnPassant = 0
+	b.Castlings = 0
+
+	for i := 0; i < 12; i++ {
+		b.Bitboards[i] = 0
+	}
+
+	for i := 0; i < 3; i++ {
+		b.Occupancies[i] = 0
+	}
+
+	// b.WbBB[WHITE], b.WbBB[BLACK] = 0, 0
+	// for i := 0; i < NoPiecesT; i++ {
+	// 	b.PieceBB[i] = 0
+	// }
+}
+
+// SetSq should set a square sq to a particular piece pc
+func (b *BoardStruct) SetSq(pc, sq int) {
 }
 
 // PrintBoard should print the current position of the board

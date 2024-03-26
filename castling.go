@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 type Castlings uint
 
 /*
@@ -40,4 +42,28 @@ func (c Castlings) String() string {
 		flags = "-"
 	}
 	return flags
+}
+
+// ParseCastlings should parse the castlings part of a FEN string
+func ParseCastlings(fenCastl string) Castlings {
+	c := uint(0)
+
+	if fenCastl == "-" {
+		return Castlings(0)
+	}
+
+	if strings.Index(fenCastl, "K") >= 0 {
+		c |= ShortW
+	}
+	if strings.Index(fenCastl, "Q") >= 0 {
+		c |= LongW
+	}
+	if strings.Index(fenCastl, "k") >= 0 {
+		c |= ShortB
+	}
+	if strings.Index(fenCastl, "q") >= 0 {
+		c |= LongB
+	}
+
+	return Castlings(c)
 }
