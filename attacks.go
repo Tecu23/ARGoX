@@ -91,8 +91,8 @@ func generateKingAttacks(square int) Bitboard {
 	return attacks
 }
 
-// generateBishopAttacks should generate all attacks for a bishop in a certain square
-func generateBishopAttacks(square int) Bitboard {
+// GenerateBishopAttacks should generate all attacks for a bishop in a certain square
+func GenerateBishopAttacks(square int) Bitboard {
 	attacks := Bitboard(0)
 
 	// init rank & files
@@ -122,7 +122,8 @@ func generateBishopAttacks(square int) Bitboard {
 	return attacks
 }
 
-func generateBishopAttacksOnTheFly(square int, block Bitboard) Bitboard {
+// GenerateBishopAttacksOnTheFly should generate all attacks for a given blocker board
+func GenerateBishopAttacksOnTheFly(square int, block Bitboard) Bitboard {
 	attacks := Bitboard(0)
 
 	// init rank & files
@@ -164,8 +165,8 @@ func generateBishopAttacksOnTheFly(square int, block Bitboard) Bitboard {
 	return attacks
 }
 
-// generateRookAttacks should generate all attacks for a rook in a certain square
-func generateRookAttacks(square int) Bitboard {
+// GenerateRookAttacks should generate all attacks for a rook in a certain square
+func GenerateRookAttacks(square int) Bitboard {
 	attacks := Bitboard(0)
 
 	// init rank & files
@@ -195,7 +196,8 @@ func generateRookAttacks(square int) Bitboard {
 	return attacks
 }
 
-func generateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
+// GenerateRookAttacksOnTheFly should generate all attacks for a given blocker board
+func GenerateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
 	attacks := Bitboard(0)
 
 	// init rank & files
@@ -237,40 +239,21 @@ func generateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
 	return attacks
 }
 
-func setOccupancy(index, bitsInMask int, attackMask Bitboard) Bitboard {
-	// occupancy map
-	occupancy := Bitboard(0)
-
-	// loop over the range of bits withing attackMask
-	for count := 0; count < bitsInMask; count++ {
-		// get LSB index of attacks mask
-		square := attackMask.FirstOne()
-
-		// make sure occupancy is on board
-		if index&(1<<count) != 0 {
-			// populate occupancy map
-			occupancy |= (1 << square)
-		}
-	}
-
-	return occupancy
-}
-
 // GenerateSliderPiecesAttacks should generate all attacks for slider pieces
-func generateSliderPieces(piece int) {
+func GenerateSliderPiecesAttacks(piece int) {
 	// loop over 64 board squares
 	for sq := 0; sq < 64; sq++ {
 		// init bishop & rook masks
-		BishopMasks[sq] = generateBishopAttacks(sq)
-		RookMasks[sq] = generateRookAttacks(sq)
+		BishopMasks[sq] = GenerateBishopAttacks(sq)
+		RookMasks[sq] = GenerateRookAttacks(sq)
 
 		// init current mask
 		var attackMask Bitboard
 
 		if piece == Bishop {
-			attackMask = generateBishopAttacks(sq)
+			attackMask = GenerateBishopAttacks(sq)
 		} else {
-			attackMask = generateRookAttacks(sq)
+			attackMask = GenerateRookAttacks(sq)
 		}
 
 		// count attack mask bits
@@ -282,16 +265,16 @@ func generateSliderPieces(piece int) {
 		// loop over occupancy variations
 		for count := 0; count < occupancyVariations; count++ {
 			if piece == Bishop {
-				occupancy := setOccupancy(count, bitCount, attackMask)
+				occupancy := SetOccupancy(count, bitCount, attackMask)
 
 				magicIndex := occupancy * BishopMagicNumbers[sq] >> (64 - BishopRelevantBits[sq])
-				BishopAttacks[sq][magicIndex] = generateBishopAttacksOnTheFly(sq, occupancy)
+				BishopAttacks[sq][magicIndex] = GenerateBishopAttacksOnTheFly(sq, occupancy)
 			} else {
 
-				occupancy := setOccupancy(count, bitCount, attackMask)
+				occupancy := SetOccupancy(count, bitCount, attackMask)
 
 				magicIndex := occupancy * RookMagicNumbers[sq] >> (64 - RookRelevantBits[sq])
-				RookAttacks[sq][magicIndex] = generateRookAttacksOnTheFly(sq, occupancy)
+				RookAttacks[sq][magicIndex] = GenerateRookAttacksOnTheFly(sq, occupancy)
 			}
 		}
 	}

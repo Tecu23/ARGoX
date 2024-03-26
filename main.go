@@ -11,8 +11,8 @@ func main() {
 	FillOptimalMagicsB()
 	FillOptimalMagicsR()
 
-	generateSliderPieces(Bishop) // bishop
-	generateSliderPieces(Rook)   // rook
+	GenerateSliderPiecesAttacks(Bishop) // bishop
+	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	bishopOccupancy := Bitboard(0)
 	bishopOccupancy.Set(G7)

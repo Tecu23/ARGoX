@@ -49,9 +49,9 @@ func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
 	var maskAttacks Bitboard
 	// mask piece attack
 	if piece == Bishop {
-		maskAttacks = generateBishopAttacks(square)
+		maskAttacks = GenerateBishopAttacks(square)
 	} else {
-		maskAttacks = generateRookAttacks(square)
+		maskAttacks = GenerateRookAttacks(square)
 	}
 
 	// occupancy variations
@@ -60,13 +60,13 @@ func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
 	// loop over the number of occupancy variations
 	for count := 0; count < occupancyVariations; count++ {
 		// init occupancies
-		occupancy[count] = setOccupancy(count, relevantBits, maskAttacks)
+		occupancy[count] = SetOccupancy(count, relevantBits, maskAttacks)
 
 		// init attacks
 		if piece == Bishop {
-			attacks[count] = generateBishopAttacksOnTheFly(square, occupancy[count])
+			attacks[count] = GenerateBishopAttacksOnTheFly(square, occupancy[count])
 		} else {
-			attacks[count] = generateRookAttacksOnTheFly(square, occupancy[count])
+			attacks[count] = GenerateRookAttacksOnTheFly(square, occupancy[count])
 		}
 	}
 
@@ -110,6 +110,26 @@ func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
 	// on fail
 	fmt.Printf("***Failed***\n")
 	return Bitboard(0)
+}
+
+// SetOccupancy should create an occupancy bitboard given an attack mask and a index
+func SetOccupancy(index, bitsInMask int, attackMask Bitboard) Bitboard {
+	// occupancy map
+	occupancy := Bitboard(0)
+
+	// loop over the range of bits withing attackMask
+	for count := 0; count < bitsInMask; count++ {
+		// get LSB index of attacks mask
+		square := attackMask.FirstOne()
+
+		// make sure occupancy is on board
+		if index&(1<<count) != 0 {
+			// populate occupancy map
+			occupancy |= (1 << square)
+		}
+	}
+
+	return occupancy
 }
 
 // FillOptimalMagicsB should fill the found optiomal magic numbers and relevant bits
