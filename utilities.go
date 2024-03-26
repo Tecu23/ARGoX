@@ -18,8 +18,8 @@ const (
 
 // ParseFEN should parse a FEN string and retrieve the board
 // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
-func ParseFEN(Board BoardStruct, FEN string) {
-	// board.Clear()
+func ParseFEN(Board *BoardStruct, FEN string) {
+	Board.Clear()
 
 	fenIdx := 0
 	sq := 0
@@ -81,7 +81,7 @@ func ParseFEN(Board BoardStruct, FEN string) {
 	}
 
 	// En Passant
-	Board.EnPassant = 0
+	Board.EnPassant = -1
 	if len(remaining) > 2 {
 		if remaining[2] != "-" {
 			Board.EnPassant = Fen2Sq[remaining[2]]
@@ -97,7 +97,7 @@ func ParseFEN(Board BoardStruct, FEN string) {
 
 // Fen2pc convert pieceString to pc int
 func Fen2pc(c string) int {
-	for p, x := range PcFen {
+	for p, x := range AciiPieces {
 		if string(x) == c {
 			return p
 		}
@@ -107,5 +107,8 @@ func Fen2pc(c string) int {
 
 // PcColor returns the color of a piece
 func PcColor(pc int) Color {
-	return Color(pc & 0x1)
+	if pc < 6 {
+		return WHITE
+	}
+	return BLACK
 }

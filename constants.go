@@ -293,4 +293,5 @@ func InitFen2Sq() {
 	Sq2Fen[H6] = "h6"
 	Sq2Fen[H7] = "h7"
 	Sq2Fen[H8] = "h8"
+	Sq2Fen[-1] = "-"
 }

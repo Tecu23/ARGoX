@@ -17,7 +17,7 @@ type BoardStruct struct {
 func (b *BoardStruct) Clear() {
 	b.SideToMove = WHITE
 	// b.Rule50 = 0
-	b.EnPassant = 0
+	b.EnPassant = -1
 	b.Castlings = 0
 
 	for i := 0; i < 12; i++ {
@@ -27,15 +27,26 @@ func (b *BoardStruct) Clear() {
 	for i := 0; i < 3; i++ {
 		b.Occupancies[i] = 0
 	}
-
-	// b.WbBB[WHITE], b.WbBB[BLACK] = 0, 0
-	// for i := 0; i < NoPiecesT; i++ {
-	// 	b.PieceBB[i] = 0
-	// }
 }
 
 // SetSq should set a square sq to a particular piece pc
-func (b *BoardStruct) SetSq(pc, sq int) {
+func (b *BoardStruct) SetSq(piece, sq int) {
+	pieceColor := PcColor(piece)
+
+	if piece == Empty {
+		return
+	}
+
+	b.Bitboards[piece].Set(sq)
+
+	if pieceColor == WHITE {
+		b.Occupancies[WHITE].Set(sq)
+	} else {
+		b.Occupancies[BLACK].Set(sq)
+	}
+
+	b.Occupancies[BOTH] |= b.Occupancies[WHITE]
+	b.Occupancies[BOTH] |= b.Occupancies[BLACK]
 }
 
 // PrintBoard should print the current position of the board
