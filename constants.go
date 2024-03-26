@@ -4,6 +4,7 @@ package main
 const (
 	WHITE = Color(0)
 	BLACK = Color(1)
+	BOTH  = Color(2)
 )
 
 // 6 piece types - no color (P)
@@ -46,6 +47,23 @@ const (
 	NE = +9
 	SW = -NE
 	SE = -NW
+)
+
+// 12 pieces with color plus empty
+const (
+	WP = iota
+	WN
+	WB
+	WR
+	WQ
+	WK
+	BP
+	BN
+	BB
+	BR
+	BQ
+	BK
+	Empty = 15
 )
 
 // square names
