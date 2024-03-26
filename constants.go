@@ -6,6 +6,16 @@ const (
 	BLACK = Color(1)
 )
 
+// 6 piece types - no color (P)
+const (
+	Pawn int = iota
+	Knight
+	Bishop
+	Rook
+	Queen
+	King
+)
+
 // Rows and Columns
 const (
 	Row1  = Bitboard(0x00000000000000FF)

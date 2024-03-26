@@ -255,3 +255,62 @@ func setOccupancy(index, bitsInMask int, attackMask Bitboard) Bitboard {
 
 	return occupancy
 }
+
+// GenerateSliderPiecesAttacks should generate all attacks for slider pieces
+func generateSliderPieces(piece int) {
+	// loop over 64 board squares
+	for sq := 0; sq < 64; sq++ {
+		// init bishop & rook masks
+		BishopMasks[sq] = generateBishopAttacks(sq)
+		RookMasks[sq] = generateRookAttacks(sq)
+
+		// init current mask
+		var attackMask Bitboard
+
+		if piece == Bishop {
+			attackMask = generateBishopAttacks(sq)
+		} else {
+			attackMask = generateRookAttacks(sq)
+		}
+
+		// count attack mask bits
+		bitCount := attackMask.Count()
+
+		// occupancy variations count
+		occupancyVariations := 1 << bitCount
+
+		// loop over occupancy variations
+		for count := 0; count < occupancyVariations; count++ {
+			if piece == Bishop {
+				occupancy := setOccupancy(count, bitCount, attackMask)
+
+				magicIndex := occupancy * BishopMagicNumbers[sq] >> (64 - BishopRelevantBits[sq])
+				BishopAttacks[sq][magicIndex] = generateBishopAttacksOnTheFly(sq, occupancy)
+			} else {
+
+				occupancy := setOccupancy(count, bitCount, attackMask)
+
+				magicIndex := occupancy * RookMagicNumbers[sq] >> (64 - RookRelevantBits[sq])
+				RookAttacks[sq][magicIndex] = generateRookAttacksOnTheFly(sq, occupancy)
+			}
+		}
+	}
+}
+
+func getBishopAttacks(sq int, occupancy Bitboard) Bitboard {
+	// calculate magic index
+	occupancy &= BishopMasks[sq]
+	occupancy *= BishopMagicNumbers[sq]
+	occupancy >>= 64 - BishopRelevantBits[sq]
+
+	return BishopAttacks[sq][occupancy]
+}
+
+func getRookAttacks(sq int, occupancy Bitboard) Bitboard {
+	// calculate magic index
+	occupancy &= RookMasks[sq]
+	occupancy *= RookMagicNumbers[sq]
+	occupancy >>= 64 - RookRelevantBits[sq]
+
+	return RookAttacks[sq][occupancy]
+}

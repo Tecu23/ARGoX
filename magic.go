@@ -23,20 +23,20 @@ func InitMagic() {
 
 	// loop over 64 board squares
 	for sq := A1; sq <= H8; sq++ {
-		fmt.Printf("    %x,\n", findMagicNumbers(sq, RookRelevantBits[sq], false))
+		fmt.Printf("    %x,\n", findMagicNumbers(sq, RookRelevantBits[sq], Rook))
 	}
 
 	fmt.Printf("};\n\nconst U64 bishop_magics[64] = {\n")
 
 	// loop over 64 board squares
 	for sq := A1; sq <= H8; sq++ {
-		fmt.Printf("    %x,\n", findMagicNumbers(sq, BishopRelevantBits[sq], true))
+		fmt.Printf("    %x,\n", findMagicNumbers(sq, BishopRelevantBits[sq], Bishop))
 	}
 
 	fmt.Printf("};\n\n")
 }
 
-func findMagicNumbers(square, relevantBits int, isBishop bool) Bitboard {
+func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
 	// define occupancies array
 	occupancy := [4096]Bitboard{}
 
@@ -48,7 +48,7 @@ func findMagicNumbers(square, relevantBits int, isBishop bool) Bitboard {
 
 	var maskAttacks Bitboard
 	// mask piece attack
-	if isBishop {
+	if piece == Bishop {
 		maskAttacks = generateBishopAttacks(square)
 	} else {
 		maskAttacks = generateRookAttacks(square)
@@ -63,7 +63,7 @@ func findMagicNumbers(square, relevantBits int, isBishop bool) Bitboard {
 		occupancy[count] = setOccupancy(count, relevantBits, maskAttacks)
 
 		// init attacks
-		if isBishop {
+		if piece == Bishop {
 			attacks[count] = generateBishopAttacksOnTheFly(square, occupancy[count])
 		} else {
 			attacks[count] = generateRookAttacksOnTheFly(square, occupancy[count])
@@ -112,6 +112,106 @@ func findMagicNumbers(square, relevantBits int, isBishop bool) Bitboard {
 	return Bitboard(0)
 }
 
+// FillOptimalMagicsB should fill the found optiomal magic numbers and relevant bits
+func FillOptimalMagicsB() {
+	BishopRelevantBits[A1] = 5
+	BishopMagicNumbers[A1] = 0xffedf9fd7cfcffff
+	BishopRelevantBits[B1] = 4
+	BishopMagicNumbers[B1] = 0xfc0962854a77f576
+	BishopRelevantBits[C1] = 5
+	BishopMagicNumbers[C1] = 0xE433BF9FF9BD3C0D
+	BishopRelevantBits[D1] = 5
+	BishopMagicNumbers[D1] = 0x8F0BBE9CF98C0405
+	BishopRelevantBits[E1] = 5
+	BishopMagicNumbers[E1] = 0x7E11DFD9DDFBDBF0
+	BishopRelevantBits[G1] = 4
+	BishopMagicNumbers[G1] = 0xfc0a66c64a7ef576
+	BishopRelevantBits[H1] = 5
+	BishopMagicNumbers[H1] = 0x7ffdfdfcbd79ffff
+	BishopRelevantBits[A2] = 4
+	BishopMagicNumbers[A2] = 0xfc0846a64a34fff6
+	BishopRelevantBits[B2] = 4
+	BishopMagicNumbers[B2] = 0xfc087a874a3cf7f6
+	BishopRelevantBits[C2] = 5
+	BishopMagicNumbers[C2] = 0x0040020042188680
+	BishopRelevantBits[D2] = 5
+	BishopMagicNumbers[D2] = 0x0080000108D80200
+	BishopRelevantBits[E2] = 5
+	BishopMagicNumbers[E2] = 0xF2048D48B0240820
+	BishopRelevantBits[F2] = 5
+	BishopMagicNumbers[F2] = 0x810040B921030010
+	BishopRelevantBits[G2] = 4
+	BishopMagicNumbers[G2] = 0xfc0864ae59b4ff76
+	BishopRelevantBits[H2] = 4
+	BishopMagicNumbers[H2] = 0x3c0860af4b35ff76
+	BishopRelevantBits[A3] = 4
+	BishopMagicNumbers[A3] = 0x73C01AF56CF4CFFB
+	BishopRelevantBits[B3] = 4
+	BishopMagicNumbers[B3] = 0x41A01CFAD64AAFFC
+	BishopRelevantBits[G3] = 4
+	BishopMagicNumbers[G3] = 0x7c0c028f5b34ff76
+	BishopRelevantBits[H3] = 4
+	BishopMagicNumbers[H3] = 0xfc0a028e5ab4df76
+	BishopRelevantBits[A6] = 4
+	BishopMagicNumbers[A6] = 0xDCEFD9B54BFCC09F
+	BishopRelevantBits[B6] = 4
+	BishopMagicNumbers[B6] = 0xF95FFA765AFD602B
+	BishopRelevantBits[G6] = 4
+	BishopMagicNumbers[G6] = 0x43ff9a5cf4ca0c01
+	BishopRelevantBits[H6] = 4
+	BishopMagicNumbers[H6] = 0x4BFFCD8E7C587601
+	BishopRelevantBits[A7] = 4
+	BishopMagicNumbers[A7] = 0xfc0ff2865334f576
+	BishopRelevantBits[B7] = 4
+	BishopMagicNumbers[B7] = 0xfc0bf6ce5924f576
+	BishopRelevantBits[G7] = 4
+	BishopMagicNumbers[G7] = 0xc3ffb7dc36ca8c89
+	BishopRelevantBits[H7] = 4
+	BishopMagicNumbers[H7] = 0xc3ff8a54f4ca2c89
+	BishopRelevantBits[A8] = 5
+	BishopMagicNumbers[A8] = 0xfffffcfcfd79edff
+	BishopRelevantBits[B8] = 4
+	BishopMagicNumbers[B8] = 0xfc0863fccb147576
+	BishopRelevantBits[G8] = 4
+	BishopMagicNumbers[G8] = 0xfc087e8e4bb2f736
+	BishopRelevantBits[H8] = 5
+	BishopMagicNumbers[H8] = 0x43ff9e4ef4ca2c89
+}
+
+// FillOptimalMagicsR should fill the found optiomal magic numbers and relevant bits
+func FillOptimalMagicsR() {
+	RookRelevantBits[A7] = 10
+	RookMagicNumbers[A7] = 0x48FFFE99FECFAA00
+	RookRelevantBits[B7] = 9
+	RookMagicNumbers[B7] = 0x48FFFE99FECFAA00
+	RookRelevantBits[C7] = 9
+	RookMagicNumbers[C7] = 0x497FFFADFF9C2E00
+	RookRelevantBits[D7] = 9
+	RookMagicNumbers[D7] = 0x613FFFDDFFCE9200
+	RookRelevantBits[E7] = 9
+	RookMagicNumbers[E7] = 0xffffffe9ffe7ce00
+	RookRelevantBits[F7] = 9
+	RookMagicNumbers[F7] = 0xfffffff5fff3e600
+	RookRelevantBits[G7] = 9
+	RookMagicNumbers[G7] = 0x3ff95e5e6a4c0
+	RookRelevantBits[H7] = 10
+	RookMagicNumbers[H7] = 0x510FFFF5F63C96A0
+	RookRelevantBits[A8] = 11
+	RookMagicNumbers[A8] = 0xEBFFFFB9FF9FC526
+	RookRelevantBits[B8] = 10
+	RookMagicNumbers[B8] = 0x61FFFEDDFEEDAEAE
+	RookRelevantBits[C8] = 10
+	RookMagicNumbers[C8] = 0x53BFFFEDFFDEB1A2
+	RookRelevantBits[D8] = 10
+	RookMagicNumbers[D8] = 0x127FFFB9FFDFB5F6
+	RookRelevantBits[E8] = 10
+	RookMagicNumbers[E8] = 0x411FFFDDFFDBF4D6
+	RookRelevantBits[G8] = 10
+	RookMagicNumbers[G8] = 0x0003ffef27eebe74
+	RookRelevantBits[H8] = 11
+	RookMagicNumbers[H8] = 0x7645FFFECBFEA79E
+}
+
 // BishopRelevantBits is the relevant occupancy bit count for every square on board
 var BishopRelevantBits = [64]int{
 	6, 5, 5, 5, 5, 5, 5, 6,
@@ -137,7 +237,7 @@ var RookRelevantBits = [64]int{
 }
 
 // BishopMagicNumbers is the magic numbers for bishops
-var BishopMagicNumbers = [64]uint64{
+var BishopMagicNumbers = [64]Bitboard{
 	0xc085080200420200,
 	0x60014902028010,
 	0x401240100c201,
@@ -205,7 +305,7 @@ var BishopMagicNumbers = [64]uint64{
 }
 
 // RookMagicNumbers is the rook magic numbers
-var RookMagicNumbers = [64]uint64{
+var RookMagicNumbers = [64]Bitboard{
 	0x11800040001481a0,
 	0x2040400010002000,
 	0xa280200308801000,
