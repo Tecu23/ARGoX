@@ -242,7 +242,7 @@ func GenerateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
 // GenerateSliderPiecesAttacks should generate all attacks for slider pieces
 func GenerateSliderPiecesAttacks(piece int) {
 	// loop over 64 board squares
-	for sq := 0; sq < 64; sq++ {
+	for sq := A1; sq <= H8; sq++ {
 		// init bishop & rook masks
 		BishopMasks[sq] = GenerateBishopAttacks(sq)
 		RookMasks[sq] = GenerateRookAttacks(sq)

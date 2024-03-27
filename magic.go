@@ -156,8 +156,8 @@ func FillOptimalMagicsB() {
 	BishopMagicNumbers[C2] = 0x0040020042188680
 	BishopRelevantBits[D2] = 5
 	BishopMagicNumbers[D2] = 0x0080000108D80200
-	BishopRelevantBits[E2] = 5
-	BishopMagicNumbers[E2] = 0xF2048D48B0240820
+	// BishopRelevantBits[E2] = 5
+	// BishopMagicNumbers[E2] = 0xF2048D48B0240820
 	BishopRelevantBits[F2] = 5
 	BishopMagicNumbers[F2] = 0x810040B921030010
 	BishopRelevantBits[G2] = 4

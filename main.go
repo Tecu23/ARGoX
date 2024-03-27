@@ -12,13 +12,10 @@ func main() {
 	GenerateSliderPiecesAttacks(Bishop) // bishop
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
-	// board := BoardStruct{}
+	board := BoardStruct{}
 
-	occ := Bitboard(0)
-	occ.Set(B6)
-	occ.Set(D6)
-	occ.Set(F6)
+	ParseFEN(&board, TrickyPosition)
 
-	b := getQueenAttacks(D4, occ)
-	b.PrintBitboard()
+	board.PrintBoard()
+	board.PrintAttackedSquares(WHITE)
 }

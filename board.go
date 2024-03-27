@@ -49,6 +49,91 @@ func (b *BoardStruct) SetSq(piece, sq int) {
 	b.Occupancies[BOTH] |= b.Occupancies[BLACK]
 }
 
+// isSquareAttacked should return whether the given square is attacked by the curren given side
+func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
+	if side == WHITE {
+		if PawnAttacks[BLACK][sq]&b.Bitboards[WP] != 0 {
+			return true
+		}
+
+		if KnightAttacks[sq]&b.Bitboards[WN] != 0 {
+			return true
+		}
+
+		if KingAttacks[sq]&b.Bitboards[WK] != 0 {
+			return true
+		}
+
+		bishopAttacks := getBishopAttacks(sq, b.Occupancies[BOTH])
+
+		if bishopAttacks&b.Bitboards[WB] != 0 {
+			return true
+		}
+		rookAttacks := getRookAttacks(sq, b.Occupancies[BOTH])
+
+		if rookAttacks&b.Bitboards[WR] != 0 {
+			return true
+		}
+		queenAttacks := getQueenAttacks(sq, b.Occupancies[BOTH])
+
+		if queenAttacks&b.Bitboards[WQ] != 0 {
+			return true
+		}
+	} else {
+
+		if PawnAttacks[WHITE][sq]&b.Bitboards[BP] != 0 {
+			return true
+		}
+
+		if KnightAttacks[sq]&b.Bitboards[BN] != 0 {
+			return true
+		}
+
+		if KingAttacks[sq]&b.Bitboards[BK] != 0 {
+			return true
+		}
+
+		bishopAttacks := getBishopAttacks(sq, b.Occupancies[BOTH])
+
+		if bishopAttacks&b.Bitboards[BB] != 0 {
+			return true
+		}
+		rookAttacks := getRookAttacks(sq, b.Occupancies[BOTH])
+
+		if rookAttacks&b.Bitboards[BR] != 0 {
+			return true
+		}
+		queenAttacks := getQueenAttacks(sq, b.Occupancies[BOTH])
+
+		if queenAttacks&b.Bitboards[BQ] != 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// PrintAttackedSquares should print all squares that are currently being attacked
+func (b *BoardStruct) PrintAttackedSquares(side Color) {
+	for rank := 7; rank >= 0; rank-- {
+		for file := 0; file < 8; file++ {
+			sq := rank*8 + file
+
+			if file == 0 {
+				fmt.Printf(" %d ", rank+1)
+			}
+
+			if b.isSquareAttacked(sq, side) {
+				fmt.Printf(" %d", 1)
+			} else {
+				fmt.Printf(" %d", 0)
+			}
+		}
+
+		fmt.Printf("\n")
+	}
+	fmt.Printf("\n     a b c d e f g h\n\n")
+}
+
 // PrintBoard should print the current position of the board
 func (b BoardStruct) PrintBoard() {
 	for rank := 7; rank >= 0; rank-- {
