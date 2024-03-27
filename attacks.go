@@ -297,3 +297,22 @@ func getRookAttacks(sq int, occupancy Bitboard) Bitboard {
 
 	return RookAttacks[sq][occupancy]
 }
+
+func getQueenAttacks(sq int, occupancy Bitboard) Bitboard {
+	queenAttacks := Bitboard(0)
+
+	bishopOccupancies := occupancy
+	rookOccupancies := occupancy
+
+	bishopOccupancies &= BishopMasks[sq]
+	bishopOccupancies *= BishopMagicNumbers[sq]
+	bishopOccupancies >>= 64 - BishopRelevantBits[sq]
+
+	rookOccupancies &= RookMasks[sq]
+	rookOccupancies *= RookMagicNumbers[sq]
+	rookOccupancies >>= 64 - RookRelevantBits[sq]
+
+	queenAttacks = BishopAttacks[sq][bishopOccupancies] | RookAttacks[sq][rookOccupancies]
+
+	return queenAttacks
+}

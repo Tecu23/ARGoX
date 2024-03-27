@@ -1,8 +1,6 @@
 // Package main contains the startup function and logic of the engine
 package main
 
-import "fmt"
-
 func main() {
 	InitPawnAttacks()
 	InitKnightAttacks()
@@ -14,14 +12,13 @@ func main() {
 	GenerateSliderPiecesAttacks(Bishop) // bishop
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
-	board := BoardStruct{}
+	// board := BoardStruct{}
 
-	ParseFEN(&board, "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9")
+	occ := Bitboard(0)
+	occ.Set(B6)
+	occ.Set(D6)
+	occ.Set(F6)
 
-	fmt.Println(board.EnPassant)
-
-	board.PrintBoard()
-	board.Occupancies[WHITE].PrintBitboard()
-	board.Occupancies[BLACK].PrintBitboard()
-	board.Occupancies[BOTH].PrintBitboard()
+	b := getQueenAttacks(D4, occ)
+	b.PrintBitboard()
 }
