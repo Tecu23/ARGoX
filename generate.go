@@ -257,13 +257,267 @@ func (b *BoardStruct) generateMoves() {
 		}
 
 		// generate knight moves
+		if b.SideToMove == WHITE {
+			if piece == WN {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = KnightAttacks[sourceSq] & (^b.Occupancies[WHITE])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[BLACK].Test(targetSq) {
+							fmt.Printf(
+								"Knight quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Knight capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		} else {
+			if piece == BN {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = KnightAttacks[sourceSq] & (^b.Occupancies[BLACK])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[WHITE].Test(targetSq) {
+							fmt.Printf(
+								"Knight quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Knight capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		}
 
 		// generate bihop moves
+		if b.SideToMove == WHITE {
+			if piece == WB {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getBishopAttacks(
+						sourceSq,
+						b.Occupancies[BOTH],
+					) & (^b.Occupancies[WHITE])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[BLACK].Test(targetSq) {
+							fmt.Printf(
+								"Bishop quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Bishop capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		} else {
+			if piece == BB {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getBishopAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[WHITE].Test(targetSq) {
+							fmt.Printf(
+								"Bishop quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Bishop capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		}
 
 		// generate rook moves
+		if b.SideToMove == WHITE {
+			if piece == WR {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getRookAttacks(
+						sourceSq,
+						b.Occupancies[BOTH],
+					) & (^b.Occupancies[WHITE])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[BLACK].Test(targetSq) {
+							fmt.Printf(
+								"Rook quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Rook capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		} else {
+			if piece == BR {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getRookAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[WHITE].Test(targetSq) {
+							fmt.Printf(
+								"Rook quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Rook capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		}
 
 		// generate queen moves
+		if b.SideToMove == WHITE {
+			if piece == WQ {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getQueenAttacks(
+						sourceSq,
+						b.Occupancies[BOTH],
+					) & (^b.Occupancies[WHITE])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[BLACK].Test(targetSq) {
+							fmt.Printf(
+								"Queen quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Queen capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		} else {
+			if piece == BQ {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = getQueenAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[WHITE].Test(targetSq) {
+							fmt.Printf(
+								"Queen quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("Queen capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		}
 
 		// generate king moves
+		if b.SideToMove == WHITE {
+			if piece == WK {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = KingAttacks[sourceSq] & (^b.Occupancies[WHITE])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[BLACK].Test(targetSq) {
+							fmt.Printf(
+								"King quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("King capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		} else {
+			if piece == BK {
+				for bitboard != 0 {
+
+					sourceSq = bitboard.FirstOne()
+
+					// init piece attacks
+					attacks = KingAttacks[sourceSq] & (^b.Occupancies[BLACK])
+
+					for attacks != 0 {
+						targetSq = attacks.FirstOne()
+
+						if !b.Occupancies[WHITE].Test(targetSq) {
+							fmt.Printf(
+								"King quiet move: %s to %s\n",
+								Sq2Fen[sourceSq],
+								Sq2Fen[targetSq],
+							)
+						} else {
+							fmt.Printf("King capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+						}
+					}
+				}
+			}
+		}
 	}
 }
