@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 // generate all moves
-func (b *BoardStruct) generateMoves() {
+func (b *BoardStruct) generateMoves(movelist *Movelist) {
 	sourceSq, targetSq := 0, 0
 
 	bitboard, attacks := Bitboard(0), Bitboard(0)
@@ -24,33 +24,18 @@ func (b *BoardStruct) generateMoves() {
 					if !(targetSq < A1) && !b.Occupancies[BOTH].Test(targetSq) {
 						// pawn promotion
 						if sourceSq >= A7 && sourceSq <= H7 {
-							fmt.Printf(
-								"Pawn Promotion: %s%sq\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sr\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sb\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sn\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WQ, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WR, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WB, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WN, 0, 0, 0, 0))
 						} else {
+
 							// one square ahead move
-							fmt.Printf("Pawn push: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, 0, 0, 0, 0, 0))
 
 							// two square ahead move
 							if (sourceSq >= A2 && sourceSq <= H2) && !b.Occupancies[BOTH].Test(targetSq+N) {
-								fmt.Printf("Pawn double push: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq+N])
+								movelist.AddMove(EncodeMove(sourceSq, targetSq+N, WP, 0, 0, 1, 0, 0))
 							}
 						}
 					}
@@ -64,28 +49,12 @@ func (b *BoardStruct) generateMoves() {
 
 						if sourceSq >= A7 && sourceSq <= H7 {
 
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sq\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sr\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sb\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sn\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WQ, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WR, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WB, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WN, 1, 0, 0, 0))
 						} else {
-							fmt.Printf("Pawn capture: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, 0, 1, 0, 0, 0))
 						}
 					}
 
@@ -97,12 +66,9 @@ func (b *BoardStruct) generateMoves() {
 						if enpassantAttacks != 0 {
 							// init enpassant capture target square
 							targetEnpassant := enpassantAttacks.FirstOne()
-							fmt.Printf(
-								"Pawn enpassant capture: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetEnpassant],
+							movelist.AddMove(
+								EncodeMove(sourceSq, targetEnpassant, WP, 0, 1, 0, 1, 0),
 							)
-
 						}
 					}
 
@@ -116,7 +82,7 @@ func (b *BoardStruct) generateMoves() {
 					if !b.Occupancies[BOTH].Test(F1) && !b.Occupancies[BOTH].Test(G1) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(F1, BLACK) {
-							fmt.Printf("Castling move: e1g1\n")
+							movelist.AddMove(EncodeMove(E1, G1, WK, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -128,7 +94,7 @@ func (b *BoardStruct) generateMoves() {
 						!b.Occupancies[BOTH].Test(B1) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(D1, BLACK) {
-							fmt.Printf("Castling move: e1c1\n")
+							movelist.AddMove(EncodeMove(E1, C1, WK, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -144,33 +110,17 @@ func (b *BoardStruct) generateMoves() {
 					if !(targetSq > H8) && !b.Occupancies[BOTH].Test(targetSq) {
 						// pawn promotion
 						if sourceSq >= A2 && sourceSq <= H2 {
-							fmt.Printf(
-								"Pawn Promotion: %s%sq\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sr\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sb\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Promotion: %s%sn\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BQ, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BR, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BB, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BN, 0, 0, 0, 0))
 						} else {
 							// one square ahead move
-							fmt.Printf("pawn push: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, 0, 0, 0, 0, 0))
 
 							// two square ahead move
 							if (sourceSq >= A7 && sourceSq <= H7) && !b.Occupancies[BOTH].Test(targetSq+S) {
-								fmt.Printf("pawn double push: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq+S])
+								movelist.AddMove(EncodeMove(sourceSq, targetSq+S, BP, 0, 0, 1, 0, 0))
 							}
 						}
 					}
@@ -184,28 +134,12 @@ func (b *BoardStruct) generateMoves() {
 
 						if sourceSq >= A2 && sourceSq <= H2 {
 
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sq\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sr\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sb\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
-							fmt.Printf(
-								"Pawn Capture Promotion: %s%sn\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BQ, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BR, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BB, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BN, 1, 0, 0, 0))
 						} else {
-							fmt.Printf("Pawn capture: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, 0, 1, 0, 0, 0))
 						}
 					}
 
@@ -217,15 +151,9 @@ func (b *BoardStruct) generateMoves() {
 						if enpassantAttacks != 0 {
 							// init enpassant capture target square
 							targetEnpassant := enpassantAttacks.FirstOne()
-							fmt.Printf(
-								"Pawn enpassant capture: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetEnpassant],
-							)
-
+							movelist.AddMove(EncodeMove(sourceSq, targetEnpassant, BP, 0, 1, 0, 1, 0))
 						}
 					}
-
 				}
 			}
 
@@ -237,7 +165,7 @@ func (b *BoardStruct) generateMoves() {
 					if !b.Occupancies[BOTH].Test(F8) && !b.Occupancies[BOTH].Test(G8) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(F8, WHITE) {
-							fmt.Printf("Castling move: e8g8\n")
+							movelist.AddMove(EncodeMove(E8, G8, BK, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -249,7 +177,7 @@ func (b *BoardStruct) generateMoves() {
 						!b.Occupancies[BOTH].Test(B8) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(D8, WHITE) {
-							fmt.Printf("Castling move: e8c8\n")
+							movelist.AddMove(EncodeMove(E8, C8, BK, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -270,13 +198,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							fmt.Printf(
-								"Knight quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Knight capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -294,13 +218,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							fmt.Printf(
-								"Knight quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Knight capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -324,13 +244,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							fmt.Printf(
-								"Bishop quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WB, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Bishop capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WB, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -348,13 +264,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							fmt.Printf(
-								"Bishop quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BB, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Bishop capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BB, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -378,13 +290,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							fmt.Printf(
-								"Rook quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WR, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Rook capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WR, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -402,13 +310,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							fmt.Printf(
-								"Rook quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BR, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Rook capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BR, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -432,13 +336,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							fmt.Printf(
-								"Queen quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WQ, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Queen capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WQ, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -456,13 +356,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							fmt.Printf(
-								"Queen quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BQ, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("Queen capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BQ, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -483,13 +379,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							fmt.Printf(
-								"King quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("King capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -507,13 +399,9 @@ func (b *BoardStruct) generateMoves() {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							fmt.Printf(
-								"King quiet move: %s to %s\n",
-								Sq2Fen[sourceSq],
-								Sq2Fen[targetSq],
-							)
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 0, 0, 0, 0))
 						} else {
-							fmt.Printf("King capture move: %s to %s\n", Sq2Fen[sourceSq], Sq2Fen[targetSq])
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 1, 0, 0, 0))
 						}
 					}
 				}

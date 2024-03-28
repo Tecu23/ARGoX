@@ -43,15 +43,17 @@ const (
 type Move uint64
 
 // EncodeMove creates a new move from every detail we need
-func (m *Move) EncodeMove(
+func EncodeMove(
 	source, target, piece, promoted, capture, doublePush, enpassant, castling int,
-) {
-	*m = Move(
+) Move {
+	move := Move(
 		(source) | (target << TargetShift) | (piece << PieceShift) |
 			(promoted << PromotedShift) | (capture << CaptureShift) |
 			(doublePush << DoublePushShift) | (enpassant << EnpassantShift) |
 			(castling << CastlingShift),
 	)
+
+	return move
 }
 
 // GetSource should retrieve the source square of a move
@@ -105,12 +107,12 @@ func (m Move) PrintMove() {
 	if m.GetPromoted() != 0 {
 		fmt.Printf("%c ", unicode.ToLower(rune(AciiPieces[m.GetPromoted()])))
 	} else {
-		fmt.Printf(" ")
+		fmt.Printf("  ")
 	}
 
-	// fmt.Printf("Promotion: %c", AciiPieces[m.GetPromoted()])
-	// fmt.Printf("Capture: %t\n", m.GetCapture() != 0)
-	// fmt.Printf("Double Push: %t\n", m.GetDoublePush() != 0)
-	// fmt.Printf("Enpassant: %t\n", m.GetEnpassant() != 0)
-	// fmt.Printf("Castling move: %t\n", m.GetCastling() != 0)
+	fmt.Printf("   %c ", AciiPieces[m.GetPiece()])
+	fmt.Printf("       %d ", m.GetCapture())
+	fmt.Printf("        %d ", m.GetDoublePush())
+	fmt.Printf("        %d ", m.GetEnpassant())
+	fmt.Printf("         %d\n", m.GetCastling())
 }
