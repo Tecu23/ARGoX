@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"unicode"
+)
+
 /*
          binary move bits representaion                    hexadecimal constants
 
@@ -87,4 +92,25 @@ func (m Move) GetEnpassant() int {
 // GetCastling should retrieve the target square of a move
 func (m Move) GetCastling() int {
 	return int(m&CastlingMask) >> CastlingShift
+}
+
+// PrintMove should print the a move
+func (m Move) PrintMove() {
+	fmt.Printf(
+		"%s%s",
+		Sq2Fen[m.GetSource()],
+		Sq2Fen[m.GetTarget()],
+	)
+
+	if m.GetPromoted() != 0 {
+		fmt.Printf("%c ", unicode.ToLower(rune(AciiPieces[m.GetPromoted()])))
+	} else {
+		fmt.Printf(" ")
+	}
+
+	// fmt.Printf("Promotion: %c", AciiPieces[m.GetPromoted()])
+	// fmt.Printf("Capture: %t\n", m.GetCapture() != 0)
+	// fmt.Printf("Double Push: %t\n", m.GetDoublePush() != 0)
+	// fmt.Printf("Enpassant: %t\n", m.GetEnpassant() != 0)
+	// fmt.Printf("Castling move: %t\n", m.GetCastling() != 0)
 }
