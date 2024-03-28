@@ -14,12 +14,7 @@ func main() {
 
 	board := BoardStruct{}
 
-	ParseFEN(&board, TrickyPosition)
-	board.SideToMove = BLACK
-	board.SetSq(BP, G2)
-	board.SetSq(Empty, A2)
-	board.SetSq(WP, A4)
-	board.EnPassant = A3
+	ParseFEN(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1 ")
 
 	board.PrintBoard()
 

@@ -108,6 +108,32 @@ func (b *BoardStruct) generateMoves() {
 
 				}
 			}
+			// Castlings moves
+			if piece == WK {
+				// King side castling is available
+				if uint(b.Castlings)&ShortW != 0 {
+					// make sure square between king and king's rook are empty
+					if !b.Occupancies[BOTH].Test(F1) && !b.Occupancies[BOTH].Test(G1) {
+						// make sure king and the f1 square are not under attack
+						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(F1, BLACK) {
+							fmt.Printf("Castling move: e1g1\n")
+						}
+					}
+				}
+
+				// Queen side castling is available
+				if uint(b.Castlings)&LongW != 0 {
+					// make sure square between king and queens's rook are empty
+					if !b.Occupancies[BOTH].Test(D1) && !b.Occupancies[BOTH].Test(C1) &&
+						!b.Occupancies[BOTH].Test(B1) {
+						// make sure king and the f1 square are not under attack
+						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(D1, BLACK) {
+							fmt.Printf("Castling move: e1c1\n")
+						}
+					}
+				}
+			}
+
 		} else {
 			if piece == BP {
 				for bitboard != 0 {
@@ -200,6 +226,32 @@ func (b *BoardStruct) generateMoves() {
 						}
 					}
 
+				}
+			}
+
+			// Castlings moves
+			if piece == BK {
+				// King side castling is available
+				if uint(b.Castlings)&ShortB != 0 {
+					// make sure square between king and king's rook are empty
+					if !b.Occupancies[BOTH].Test(F8) && !b.Occupancies[BOTH].Test(G8) {
+						// make sure king and the f1 square are not under attack
+						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(F8, WHITE) {
+							fmt.Printf("Castling move: e8g8\n")
+						}
+					}
+				}
+
+				// Queen side castling is available
+				if uint(b.Castlings)&LongB != 0 {
+					// make sure square between king and queens's rook are empty
+					if !b.Occupancies[BOTH].Test(D8) && !b.Occupancies[BOTH].Test(C8) &&
+						!b.Occupancies[BOTH].Test(B8) {
+						// make sure king and the f1 square are not under attack
+						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(D8, WHITE) {
+							fmt.Printf("Castling move: e8c8\n")
+						}
+					}
 				}
 			}
 		}
