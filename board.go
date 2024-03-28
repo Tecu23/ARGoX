@@ -37,6 +37,19 @@ func (b *BoardStruct) SetSq(piece, sq int) {
 		return
 	}
 
+	if b.Occupancies[BOTH].Test(sq) {
+		// need to remove the piece
+		for p := WP; p <= BK; p++ {
+			if b.Bitboards[p].Test(sq) {
+				b.Bitboards[p].Clear(sq)
+			}
+		}
+
+		b.Occupancies[BOTH].Clear(sq)
+		b.Occupancies[WHITE].Clear(sq)
+		b.Occupancies[BLACK].Clear(sq)
+	}
+
 	b.Bitboards[piece].Set(sq)
 
 	if pieceColor == WHITE {

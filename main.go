@@ -15,7 +15,9 @@ func main() {
 	board := BoardStruct{}
 
 	ParseFEN(&board, TrickyPosition)
-
+	board.SetSq(BP, G2)
+	board.SideToMove = BLACK
 	board.PrintBoard()
-	board.PrintAttackedSquares(WHITE)
+
+	board.generateMoves()
 }
