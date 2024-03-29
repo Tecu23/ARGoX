@@ -13,19 +13,24 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	board := BoardStruct{}
-	ParseFEN(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ")
+	ParseFEN(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1 ")
 
 	board.PrintBoard()
 
-	// preserve board state
-	boardCopy := board.CopyBoard()
+	var mvlst Movelist
+	board.generateMoves(&mvlst)
 
-	ParseFEN(&board, EmptyBoard)
+	for _, mv := range mvlst {
+		copyB := board.CopyBoard()
 
-	board.PrintBoard()
+		if mv.GetEnpassant() != 0 {
+			mv.PrintMove()
+			board.PrintBoard()
+			board.MakeMove(mv, AllMoves)
+			board.PrintBoard()
+			board.TakeBack(copyB)
+			board.PrintBoard()
+		}
 
-	// restore board state
-	board.TakeBack(boardCopy)
-
-	board.PrintBoard()
+	}
 }

@@ -160,6 +160,63 @@ func (b *BoardStruct) PrintAttackedSquares(side Color) {
 	fmt.Printf("\n     a b c d e f g h\n\n")
 }
 
+// AllMoves and OnlyCaptures flags
+const (
+	AllMoves     = 0
+	OnlyCaptures = 1
+)
+
+// MakeMove should make a move on the board
+func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
+	// quiet moves
+	if moveFlag == AllMoves {
+		// preserve board state
+		// copy := b.CopyBoard()
+
+		// parse the move
+		src := m.GetSource()
+		tgt := m.GetTarget()
+		pc := m.GetPiece()
+		color := PcColor(pc)
+		prom := m.GetPromoted()
+		// capt := m.GetCapture()
+		// dblPwn := m.GetDoublePush()
+		ep := m.GetEnpassant()
+		// cast := m.GetCastling()
+
+		if ep != 0 {
+			b.SetSq(Empty, src)
+			if color == WHITE {
+				b.SetSq(Empty, tgt+S)
+				// b.Set
+			} else {
+				b.SetSq(Empty, tgt+N)
+			}
+
+			b.SetSq(pc, tgt)
+
+			return true
+		}
+
+		b.SetSq(Empty, src)
+
+		if prom != 0 {
+			b.SetSq(prom, tgt)
+		} else {
+			b.SetSq(pc, tgt)
+		}
+
+	} else { // capture moves
+		if m.GetCapture() != 0 {
+			b.MakeMove(m, AllMoves)
+		} else {
+			return false // 0 means don't make it
+		}
+	}
+
+	return true
+}
+
 // PrintBoard should print the current position of the board
 func (b BoardStruct) PrintBoard() {
 	for rank := 7; rank >= 0; rank-- {

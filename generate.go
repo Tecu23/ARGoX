@@ -1,13 +1,10 @@
 package main
 
-import "fmt"
-
 // generate all moves
 func (b *BoardStruct) generateMoves(movelist *Movelist) {
 	sourceSq, targetSq := 0, 0
 
 	bitboard, attacks := Bitboard(0), Bitboard(0)
-	fmt.Printf("\n %d \n", attacks)
 
 	for piece := WP; piece <= BK; piece++ {
 
@@ -107,7 +104,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					targetSq = sourceSq + S
 
 					// quiet pawn moves
-					if !(targetSq > H8) && !b.Occupancies[BOTH].Test(targetSq) {
+					if !(targetSq < 0 || targetSq > H8) && !b.Occupancies[BOTH].Test(targetSq) {
 						// pawn promotion
 						if sourceSq >= A2 && sourceSq <= H2 {
 							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BQ, 0, 0, 0, 0))
