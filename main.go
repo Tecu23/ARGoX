@@ -1,6 +1,8 @@
 // Package main contains the startup function and logic of the engine
 package main
 
+import "fmt"
+
 func main() {
 	InitPawnAttacks()
 	InitKnightAttacks()
@@ -13,21 +15,20 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	board := BoardStruct{}
-	ParseFEN(&board, "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPBrPPP/R3K2R w KQkq - 0 1 ")
+	ParseFEN(&board, TrickyPosition)
 	board.PrintBoard()
 
+	start := GetTimeInMiliseconds()
 	var mvlst Movelist
 	board.generateMoves(&mvlst)
 
 	for _, mv := range mvlst {
 		copyB := board.CopyBoard()
 
-		mv.PrintMove()
 		if !board.MakeMove(mv, AllMoves) {
 			continue
 		}
-		board.PrintBoard()
 		board.TakeBack(copyB)
-		board.PrintBoard()
 	}
+	fmt.Printf("Time taken to execute in ms: %d\n", GetTimeInMiliseconds()-start)
 }

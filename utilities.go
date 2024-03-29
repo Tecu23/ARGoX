@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // piece char definitions
@@ -111,4 +112,9 @@ func PcColor(pc int) Color {
 		return WHITE
 	}
 	return BLACK
+}
+
+// GetTimeInMiliseconds should return the current timestamp in miliseconds
+func GetTimeInMiliseconds() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
