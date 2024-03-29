@@ -13,12 +13,19 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	board := BoardStruct{}
+	ParseFEN(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ")
 
-	ParseFEN(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ")
+	board.PrintBoard()
 
-	var list Movelist
+	// preserve board state
+	boardCopy := board.CopyBoard()
 
-	board.generateMoves(&list)
+	ParseFEN(&board, EmptyBoard)
 
-	list.PrintMovelist()
+	board.PrintBoard()
+
+	// restore board state
+	board.TakeBack(boardCopy)
+
+	board.PrintBoard()
 }

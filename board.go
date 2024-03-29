@@ -29,6 +29,19 @@ func (b *BoardStruct) Clear() {
 	}
 }
 
+// CopyBoard should take a copy of the current board position
+func (b BoardStruct) CopyBoard() BoardStruct {
+	boardCopy := BoardStruct{}
+	boardCopy = b
+
+	return boardCopy
+}
+
+// TakeBack should restore the board state to a copy
+func (b *BoardStruct) TakeBack(copy BoardStruct) {
+	*b = copy
+}
+
 // SetSq should set a square sq to a particular piece pc
 func (b *BoardStruct) SetSq(piece, sq int) {
 	pieceColor := PcColor(piece)

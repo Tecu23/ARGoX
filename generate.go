@@ -24,18 +24,18 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !(targetSq < A1) && !b.Occupancies[BOTH].Test(targetSq) {
 						// pawn promotion
 						if sourceSq >= A7 && sourceSq <= H7 {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WQ, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WR, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WB, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WN, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WQ, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WR, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WB, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WN, 0, 0, 0, 0))
 						} else {
 
 							// one square ahead move
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 
 							// two square ahead move
 							if (sourceSq >= A2 && sourceSq <= H2) && !b.Occupancies[BOTH].Test(targetSq+N) {
-								movelist.AddMove(EncodeMove(sourceSq, targetSq+N, WP, 0, 0, 1, 0, 0))
+								movelist.AddMove(EncodeMove(sourceSq, targetSq+N, piece, 0, 0, 1, 0, 0))
 							}
 						}
 					}
@@ -49,12 +49,12 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 
 						if sourceSq >= A7 && sourceSq <= H7 {
 
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WQ, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WR, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WB, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, WN, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WQ, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WR, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WB, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, WN, 1, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WP, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 
@@ -67,7 +67,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 							// init enpassant capture target square
 							targetEnpassant := enpassantAttacks.FirstOne()
 							movelist.AddMove(
-								EncodeMove(sourceSq, targetEnpassant, WP, 0, 1, 0, 1, 0),
+								EncodeMove(sourceSq, targetEnpassant, piece, 0, 1, 0, 1, 0),
 							)
 						}
 					}
@@ -82,7 +82,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !b.Occupancies[BOTH].Test(F1) && !b.Occupancies[BOTH].Test(G1) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(F1, BLACK) {
-							movelist.AddMove(EncodeMove(E1, G1, WK, 0, 0, 0, 0, 1))
+							movelist.AddMove(EncodeMove(E1, G1, piece, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -94,7 +94,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						!b.Occupancies[BOTH].Test(B1) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(D1, BLACK) {
-							movelist.AddMove(EncodeMove(E1, C1, WK, 0, 0, 0, 0, 1))
+							movelist.AddMove(EncodeMove(E1, C1, piece, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -110,17 +110,17 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !(targetSq > H8) && !b.Occupancies[BOTH].Test(targetSq) {
 						// pawn promotion
 						if sourceSq >= A2 && sourceSq <= H2 {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BQ, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BR, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BB, 0, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BN, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BQ, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BR, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BB, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BN, 0, 0, 0, 0))
 						} else {
 							// one square ahead move
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 
 							// two square ahead move
 							if (sourceSq >= A7 && sourceSq <= H7) && !b.Occupancies[BOTH].Test(targetSq+S) {
-								movelist.AddMove(EncodeMove(sourceSq, targetSq+S, BP, 0, 0, 1, 0, 0))
+								movelist.AddMove(EncodeMove(sourceSq, targetSq+S, piece, 0, 0, 1, 0, 0))
 							}
 						}
 					}
@@ -134,12 +134,12 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 
 						if sourceSq >= A2 && sourceSq <= H2 {
 
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BQ, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BR, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BB, 1, 0, 0, 0))
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, BN, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BQ, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BR, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BB, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, BN, 1, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BP, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 
@@ -151,7 +151,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						if enpassantAttacks != 0 {
 							// init enpassant capture target square
 							targetEnpassant := enpassantAttacks.FirstOne()
-							movelist.AddMove(EncodeMove(sourceSq, targetEnpassant, BP, 0, 1, 0, 1, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetEnpassant, piece, 0, 1, 0, 1, 0))
 						}
 					}
 				}
@@ -165,7 +165,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !b.Occupancies[BOTH].Test(F8) && !b.Occupancies[BOTH].Test(G8) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(F8, WHITE) {
-							movelist.AddMove(EncodeMove(E8, G8, BK, 0, 0, 0, 0, 1))
+							movelist.AddMove(EncodeMove(E8, G8, piece, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -177,7 +177,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						!b.Occupancies[BOTH].Test(B8) {
 						// make sure king and the f1 square are not under attack
 						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(D8, WHITE) {
-							movelist.AddMove(EncodeMove(E8, C8, BK, 0, 0, 0, 0, 1))
+							movelist.AddMove(EncodeMove(E8, C8, piece, 0, 0, 0, 0, 1))
 						}
 					}
 				}
@@ -198,9 +198,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -218,9 +218,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -244,9 +244,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WB, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WB, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -264,9 +264,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BB, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BB, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -290,9 +290,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WR, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WR, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -310,9 +310,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BR, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BR, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -336,9 +336,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WQ, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WQ, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -356,9 +356,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BQ, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BQ, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -379,9 +379,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[BLACK].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, WK, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
@@ -399,9 +399,9 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 						targetSq = attacks.FirstOne()
 
 						if !b.Occupancies[WHITE].Test(targetSq) {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 0, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 0, 0, 0, 0))
 						} else {
-							movelist.AddMove(EncodeMove(sourceSq, targetSq, BK, 0, 1, 0, 0, 0))
+							movelist.AddMove(EncodeMove(sourceSq, targetSq, piece, 0, 1, 0, 0, 0))
 						}
 					}
 				}
