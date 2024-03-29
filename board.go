@@ -171,7 +171,7 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 	// quiet moves
 	if moveFlag == AllMoves {
 		// preserve board state
-		// copy := b.CopyBoard()
+		copyB := b.CopyBoard()
 
 		// parse the move
 		src := m.GetSource()
@@ -180,22 +180,52 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		color := PcColor(pc)
 		prom := m.GetPromoted()
 		// capt := m.GetCapture()
-		// dblPwn := m.GetDoublePush()
+		dblPwn := m.GetDoublePush()
 		ep := m.GetEnpassant()
-		// cast := m.GetCastling()
+		cast := m.GetCastling()
 
 		if ep != 0 {
 			b.SetSq(Empty, src)
 			if color == WHITE {
 				b.SetSq(Empty, tgt+S)
-				// b.Set
 			} else {
 				b.SetSq(Empty, tgt+N)
 			}
 
 			b.SetSq(pc, tgt)
+			b.EnPassant = -1
 
+			b.SideToMove = b.SideToMove.Opp()
 			return true
+		}
+
+		if cast != 0 {
+			switch tgt {
+			// WHITE Short Castle
+			case G1:
+				b.SetSq(Empty, H1)
+				b.SetSq(WR, F1)
+			// WHITE Long Castle
+			case C1:
+				b.SetSq(Empty, A1)
+				b.SetSq(WR, D1)
+			// BLACK Short Castle
+			case G8:
+				b.SetSq(Empty, H8)
+				b.SetSq(BR, F8)
+			// BLACK Long Castle
+			case C8:
+				b.SetSq(Empty, A8)
+				b.SetSq(BR, D8)
+			}
+		}
+
+		if dblPwn != 0 {
+			if color == WHITE {
+				b.EnPassant = src + N
+			} else {
+				b.EnPassant = src + S
+			}
 		}
 
 		b.SetSq(Empty, src)
@@ -204,6 +234,32 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 			b.SetSq(prom, tgt)
 		} else {
 			b.SetSq(pc, tgt)
+		}
+
+		// update castling rights
+		b.Castlings &= Castlings(CastlingRights[src])
+		b.Castlings &= Castlings(CastlingRights[tgt])
+
+		// change size
+		b.SideToMove = b.SideToMove.Opp()
+
+		// make sure the king was not exposed into a check
+		var kingPos int
+
+		if b.SideToMove == WHITE {
+			kingPos = b.Bitboards[BK].FirstOne()
+		} else {
+			kingPos = b.Bitboards[WK].FirstOne()
+		}
+		if b.isSquareAttacked(kingPos, b.SideToMove) {
+			// take back
+			b.TakeBack(copyB)
+			return false
+		}
+		if b.SideToMove == WHITE {
+			b.Bitboards[BK].Set(kingPos)
+		} else {
+			b.Bitboards[WK].Set(kingPos)
 		}
 
 	} else { // capture moves
