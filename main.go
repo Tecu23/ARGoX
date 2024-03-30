@@ -13,7 +13,7 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	board := BoardStruct{}
-	ParseFEN(&board, StartPosition)
+	ParseFEN(&board, TrickyPosition)
 
 	// for i := 1; i <= 8; i++ {
 	// 	Nodes = 0
@@ -23,5 +23,5 @@ func main() {
 	// 	fmt.Printf("Nodes: %d\n\n", Nodes)
 	// }
 
-	perftTest(&board, 6)
+	perftTest(&board, 5)
 }
