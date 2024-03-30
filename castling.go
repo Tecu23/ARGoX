@@ -95,3 +95,11 @@ func ParseCastlings(fenCastl string) Castlings {
 
 	return Castlings(c)
 }
+
+func (c *Castlings) On(val uint) {
+	(*c) |= Castlings(val)
+}
+
+func (c *Castlings) Off(val uint) {
+	(*c) &= Castlings(^val)
+}

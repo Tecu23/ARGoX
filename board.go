@@ -138,8 +138,8 @@ func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
 	return false
 }
 
-// PrintAttackedSquares should print all squares that are currently being attacked
-func (b *BoardStruct) PrintAttackedSquares(side Color) {
+// ShowAttackedSquares should print all squares that are currently being attacked
+func (b *BoardStruct) ShowAttackedSquares(side Color) {
 	for rank := 7; rank >= 0; rank-- {
 		for file := 0; file < 8; file++ {
 			sq := rank*8 + file
@@ -184,6 +184,8 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		ep := m.GetEnpassant()
 		cast := m.GetCastling()
 
+		b.EnPassant = -1
+
 		if ep != 0 {
 			b.SetSq(Empty, src)
 			if color == WHITE {
@@ -193,9 +195,35 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 			}
 
 			b.SetSq(pc, tgt)
-			b.EnPassant = -1
 
 			b.SideToMove = b.SideToMove.Opp()
+			// make sure the king was not exposed into a check
+			var kingPos int
+
+			if b.SideToMove == WHITE {
+				if b.Bitboards[BK] == 0 {
+					b.TakeBack(copyB)
+					return false
+				}
+				kingPos = b.Bitboards[BK].FirstOne()
+			} else {
+				if b.Bitboards[WK] == 0 {
+					b.TakeBack(copyB)
+					return false
+				}
+				kingPos = b.Bitboards[WK].FirstOne()
+			}
+			if b.isSquareAttacked(kingPos, b.SideToMove) {
+				// take back
+				b.TakeBack(copyB)
+				return false
+			}
+			if b.SideToMove == WHITE {
+				b.Bitboards[BK].Set(kingPos)
+			} else {
+				b.Bitboards[WK].Set(kingPos)
+			}
+
 			return true
 		}
 
@@ -247,8 +275,16 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		var kingPos int
 
 		if b.SideToMove == WHITE {
+			if b.Bitboards[BK] == 0 {
+				b.TakeBack(copyB)
+				return false
+			}
 			kingPos = b.Bitboards[BK].FirstOne()
 		} else {
+			if b.Bitboards[WK] == 0 {
+				b.TakeBack(copyB)
+				return false
+			}
 			kingPos = b.Bitboards[WK].FirstOne()
 		}
 		if b.isSquareAttacked(kingPos, b.SideToMove) {

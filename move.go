@@ -96,6 +96,14 @@ func (m Move) GetCastling() int {
 	return int(m&CastlingMask) >> CastlingShift
 }
 
+func (m Move) String() string {
+	return fmt.Sprintf(
+		"%s%s",
+		Sq2Fen[m.GetSource()],
+		Sq2Fen[m.GetTarget()],
+	)
+}
+
 // PrintMove should print the a move
 func (m Move) PrintMove() {
 	fmt.Printf(

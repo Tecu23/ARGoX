@@ -15,20 +15,13 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	board := BoardStruct{}
-	ParseFEN(&board, TrickyPosition)
-	board.PrintBoard()
+	ParseFEN(&board, StartPosition)
 
-	start := GetTimeInMiliseconds()
-	var mvlst Movelist
-	board.generateMoves(&mvlst)
-
-	for _, mv := range mvlst {
-		copyB := board.CopyBoard()
-
-		if !board.MakeMove(mv, AllMoves) {
-			continue
-		}
-		board.TakeBack(copyB)
+	for i := 1; i <= 8; i++ {
+		Nodes = 0
+		start := GetTimeInMiliseconds()
+		perftDriver(&board, i)
+		fmt.Printf("Time taken to execute in ms: %d\n", GetTimeInMiliseconds()-start)
+		fmt.Printf("Nodes: %d\n\n", Nodes)
 	}
-	fmt.Printf("Time taken to execute in ms: %d\n", GetTimeInMiliseconds()-start)
 }
