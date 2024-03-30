@@ -62,7 +62,7 @@ func perftTest(b *BoardStruct, depth int) {
 		// take back move
 		b.TakeBack(copyB)
 
-		fmt.Printf("%s %d \n", m.String(), Nodes)
+		fmt.Printf("%s: %d \n", m.String(), Nodes)
 
 		totalMoves += Nodes
 	}

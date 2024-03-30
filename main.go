@@ -1,8 +1,6 @@
 // Package main contains the startup function and logic of the engine
 package main
 
-import "fmt"
-
 func main() {
 	InitPawnAttacks()
 	InitKnightAttacks()
@@ -17,11 +15,13 @@ func main() {
 	board := BoardStruct{}
 	ParseFEN(&board, StartPosition)
 
-	for i := 1; i <= 8; i++ {
-		Nodes = 0
-		start := GetTimeInMiliseconds()
-		perftDriver(&board, i)
-		fmt.Printf("Time taken to execute in ms: %d\n", GetTimeInMiliseconds()-start)
-		fmt.Printf("Nodes: %d\n\n", Nodes)
-	}
+	// for i := 1; i <= 8; i++ {
+	// 	Nodes = 0
+	// 	start := GetTimeInMiliseconds()
+	// 	perftDriver(&board, i)
+	// 	fmt.Printf("Time taken to execute in ms: %d\n", GetTimeInMiliseconds()-start)
+	// 	fmt.Printf("Nodes: %d\n\n", Nodes)
+	// }
+
+	perftTest(&board, 6)
 }
