@@ -167,6 +167,7 @@ const (
 )
 
 // MakeMove should make a move on the board
+// TODO: Refactor this method for performance
 func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 	// quiet moves
 	if moveFlag == AllMoves {

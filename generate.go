@@ -1,6 +1,8 @@
 package main
 
 // generate all moves
+// TODO: Split this method into captures/quiet moves for all pieces to debug more easily
+// TODO: Fix Issue where a black pawn could capture a black king ???????
 func (b *BoardStruct) generateMoves(movelist *Movelist) {
 	sourceSq, targetSq := 0, 0
 
