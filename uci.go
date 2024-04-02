@@ -125,11 +125,6 @@ func (b *BoardStruct) ParseGo(cmd string) error {
 	return nil
 }
 
-// SearchPosition should search the current board position for the best move
-func (b *BoardStruct) SearchPosition(depth int) {
-	fmt.Printf("bestmove d2d4\n")
-}
-
 // Uci is the main loop of the engine
 func Uci(input chan string) {
 	board := BoardStruct{}
