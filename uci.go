@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -100,7 +103,7 @@ func (b *BoardStruct) ParseGo(cmd string) error {
 				return fmt.Errorf("depth not numeric")
 			}
 
-			fmt.Println(d)
+			b.SearchPosition(d)
 
 		case "nodes":
 			return fmt.Errorf("go nodes not implemented")
@@ -113,11 +116,86 @@ func (b *BoardStruct) ParseGo(cmd string) error {
 		case "register":
 			return fmt.Errorf("go register not implemented")
 		default:
-			return fmt.Errorf("go ", words[1], " not implemented")
+			return fmt.Errorf("go %v not implemented", words[0])
 		}
 	} else {
 		fmt.Printf("suppose go infinite")
 	}
 
 	return nil
+}
+
+// SearchPosition should search the current board position for the best move
+func (b *BoardStruct) SearchPosition(depth int) {
+	fmt.Printf("bestmove d2d4\n")
+}
+
+// Uci is the main loop of the engine
+func Uci(input chan string) {
+	board := BoardStruct{}
+	var cmd string
+
+	quit := false
+
+	for !quit {
+		select {
+		case cmd = <-input:
+		}
+
+		words := strings.Split(cmd, " ")
+		words[0] = strings.TrimSpace(strings.ToLower(words[0]))
+
+		switch words[0] {
+		case "uci":
+			fmt.Printf("id name ARGoX\n")
+			fmt.Printf("id author Tecu23\n")
+
+			fmt.Printf("uciok\n")
+		case "setoption":
+			fmt.Printf("setoption command not implemented yet")
+		case "isready":
+			fmt.Printf("readyok")
+		case "ucinewgame":
+			board.ParsePosition("position startpos")
+		case "position":
+			board.ParsePosition(cmd)
+		case "debug":
+			fmt.Printf("debug command not implemented yet")
+		case "register":
+			fmt.Printf("register command not implemented yet")
+		case "go":
+			board.ParseGo(cmd)
+		case "ponderhit":
+			fmt.Printf("ponderhit command not implemented yet")
+		case "stop":
+			fmt.Printf("stop command not implemented yet")
+		case "quit", "q":
+			quit = true
+			continue
+
+			/* My Own Commands*/
+		case "printboard":
+			board.PrintBoard()
+		default:
+			fmt.Printf("unknown cmd %v", cmd)
+		}
+	}
+}
+
+func input() chan string {
+	line := make(chan string)
+	var reader *bufio.Reader
+	reader = bufio.NewReader(os.Stdin)
+
+	go func() {
+		for {
+			text, err := reader.ReadString('\n')
+			text = strings.TrimSpace(text)
+			if err != io.EOF && len(text) > 0 {
+				line <- text
+			}
+		}
+	}()
+
+	return line
 }

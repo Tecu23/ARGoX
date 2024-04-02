@@ -14,19 +14,9 @@ func main() {
 	GenerateSliderPiecesAttacks(Bishop) // bishop
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
-	board := BoardStruct{}
+	fmt.Println("Starting ARGoX")
 
-	err := board.ParsePosition(
-		"position startpos moves e2e4 e7e5 g1f3",
-	)
-	if err != nil {
-		fmt.Println(err)
-	}
+	Uci(input())
 
-	board.PrintBoard()
-
-	err = board.ParseGo("go depth 7")
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println("Quiting ARGoX")
 }
