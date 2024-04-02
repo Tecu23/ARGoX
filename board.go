@@ -350,8 +350,6 @@ func (b *BoardStruct) ParseMove(moveString string) Move {
 		}
 	}
 
-	fmt.Println(Sq2Fen[src], Sq2Fen[tgt])
-
 	return NoMove
 }
 
