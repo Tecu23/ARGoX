@@ -17,9 +17,16 @@ func main() {
 	board := BoardStruct{}
 
 	err := board.ParsePosition(
-		"position fen r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 moves d5d6 d7d5",
+		"position startpos moves e2e4 e7e5 g1f3",
 	)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	fmt.Println(err)
 	board.PrintBoard()
+
+	err = board.ParseGo("go depth 7")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
