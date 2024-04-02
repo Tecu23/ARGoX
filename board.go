@@ -310,6 +310,51 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 	return true
 }
 
+// ParseMove should parse user/GUI move string input (e.g. e7e8q)
+func (b *BoardStruct) ParseMove(moveString string) Move {
+	var moves Movelist
+
+	b.generateMoves(&moves)
+
+	src := Fen2Sq[moveString[:2]]
+	tgt := Fen2Sq[moveString[2:4]]
+
+	for cnt := 0; cnt < len(moves); cnt++ {
+		mv := moves[cnt]
+
+		if mv.GetSource() == src && mv.GetTarget() == tgt {
+			prom := mv.GetPromoted()
+
+			if prom != 0 {
+				if (prom == WQ || prom == BQ) && moveString[4] == 'q' {
+					return mv
+				}
+
+				if (prom == WR || prom == BR) && moveString[4] == 'r' {
+					return mv
+				}
+
+				if (prom == WB || prom == BB) && moveString[4] == 'b' {
+					return mv
+				}
+
+				if (prom == WN || prom == BN) && moveString[4] == 'n' {
+					return mv
+				}
+
+				// continue the loop on wrong promotions
+				continue
+			}
+
+			return mv
+		}
+	}
+
+	fmt.Println(Sq2Fen[src], Sq2Fen[tgt])
+
+	return NoMove
+}
+
 // PrintBoard should print the current position of the board
 func (b BoardStruct) PrintBoard() {
 	for rank := 7; rank >= 0; rank-- {

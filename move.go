@@ -37,6 +37,8 @@ const (
 	DoublePushShift = 21
 	EnpassantShift  = 22
 	CastlingShift   = 23
+
+	NoMove = Move(0)
 )
 
 // Move is a representation of a move in binary format
