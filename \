@@ -13,14 +13,14 @@ var bestMove Move
 
 var nodes int
 
-func (b *BoardStruct) scoreMove(mv Move) int {
+func (b *BoardStruct) scoreMove(mv Move) {
 	if mv.GetCapture() != 0 {
 		tgtPc := 0
 		tgtSq := mv.GetTarget()
 
 		var startPc, endPc int
 
-		if b.SideToMove == BLACK {
+		if b.SideToMove == WHITE {
 			startPc = WP
 			endPc = WK
 		} else {
@@ -35,19 +35,12 @@ func (b *BoardStruct) scoreMove(mv Move) int {
 			}
 		}
 
-		return MvvLva[mv.GetPiece()][tgtPc] // score move by MVV LVA lookup [source][target]
+		fmt.Printf("source piece: %c ", AciiPieces[mv.GetPiece()])
+		fmt.Printf("target piece: %c\n", AciiPieces[tgtPc])
+
+		// return MvvLva[mv.GetPiece()][tgtPc] // score move by MVV LVA lookup [source][target]
 
 	} else { // quiet move
-	}
-
-	return 0
-}
-
-// ListScoreMoves should list all scores for all moves in a given position
-func (b *BoardStruct) ListScoreMoves(mvlist Movelist) {
-	fmt.Printf("   Move Scores: \n")
-	for _, m := range mvlist {
-		fmt.Printf("   %s  Score: %d\n", m, b.scoreMove(m))
 	}
 }
 

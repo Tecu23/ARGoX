@@ -3,6 +3,8 @@ package main
 
 import "fmt"
 
+// TODO: Make debug as a flag
+// TODO: Fix optimal magic problem
 func main() {
 	InitPawnAttacks()
 	InitKnightAttacks()
@@ -16,14 +18,19 @@ func main() {
 
 	InitMaterialScore()
 
-	debug := false
+	debug := true
 
 	if debug {
 		board := BoardStruct{}
 
-		board.ParsePosition("position startpos moves d2d4 d7d5 b1c3 a7a6 c3d5 d8d5")
+		ParseFEN(&board, TrickyPosition)
+		board.EnPassant = C6
 
-		perftTest(&board, 1)
+		var mvlist Movelist
+		board.generateMoves(&mvlist)
+
+		board.ListScoreMoves(mvlist)
+
 	} else {
 		fmt.Println("Starting ARGoX")
 		Uci(input())
