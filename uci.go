@@ -1,5 +1,8 @@
 package main
 
+// TODO: Add perft test to go perft and depth
+// TODO: Add some sort of helper functions when debugging
+
 import (
 	"bufio"
 	"fmt"
