@@ -16,14 +16,14 @@ func main() {
 
 	InitMaterialScore()
 
-	debug := true
+	debug := false
 
 	if debug {
 		board := BoardStruct{}
 
-		ParseFEN(&board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ")
-
+		ParseFEN(&board, StartPosition)
 		board.PrintBoard()
+		board.SearchPosition(7)
 
 		fmt.Printf("Score: %d\n", board.EvaluatePosition())
 	} else {

@@ -46,5 +46,9 @@ func (b *BoardStruct) EvaluatePosition() int {
 		}
 	}
 
-	return score
+	if b.SideToMove == WHITE {
+		return score
+	}
+
+	return -score
 }
