@@ -171,6 +171,8 @@ func Uci(input chan string) {
 			/* My Own Commands*/
 		case "printboard":
 			board.PrintBoard()
+		case "eval":
+			fmt.Printf("Score: %d\n", board.EvaluatePosition())
 		default:
 			fmt.Printf("unknown cmd %v", cmd)
 		}

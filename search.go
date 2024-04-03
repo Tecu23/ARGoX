@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/bits"
+)
 
 // half move counter
 var Ply int
@@ -10,19 +13,66 @@ var bestMove Move
 
 var nodes int
 
-// negamax alpha beta search
-func (b *BoardStruct) negamax(alpha, beta, depth int) int {
-	// recursion base case
-	if depth == 0 {
-		return b.EvaluatePosition()
+func (b *BoardStruct) quiescence(alpha, beta int) int {
+	evaluation := b.EvaluatePosition()
+
+	if evaluation >= beta {
+		return beta
 	}
 
-	// increment nodes traversed count
-	nodes++
+	if evaluation > alpha {
+		alpha = evaluation
+	}
 
-	var bestSoFar Move
+	// generate moves
+	var moves Movelist
+	b.generateMoves(&moves)
 
-	// old value of alpha -> temporary
+	for _, m := range moves {
+		copyB := b.CopyBoard()
+
+		Ply++
+		if !b.MakeMove(m, OnlyCaptures) {
+			Ply--
+			continue
+		}
+		score := -b.quiescence(-beta, -alpha) // score current move
+
+		Ply--
+
+		b.TakeBack(copyB)
+
+		// fail-hard beta cutoff
+		if score >= beta {
+			return beta // node (move) fails high
+		}
+
+		if score > alpha {
+			alpha = score // PV node (move)
+		}
+	}
+	return alpha // node (move) fails low
+}
+
+// negamax alpha beta search
+func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+	if depth == 0 { // base case
+		return b.quiescence(alpha, beta)
+	}
+
+	nodes++ // traversed nodes
+
+	var bit int
+	if b.SideToMove == WHITE {
+		bit = bits.TrailingZeros64(uint64(b.Bitboards[WK]))
+	} else {
+		bit = bits.TrailingZeros64(uint64(b.Bitboards[BK]))
+	}
+
+	inCheck := b.isSquareAttacked(bit, b.SideToMove.Opp())
+
+	legalMoves, bestSoFar := 0, NoMove
+
 	oldAlpha := alpha
 
 	// generate moves
@@ -30,22 +80,17 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	b.generateMoves(&moves)
 
 	for _, m := range moves {
-
 		copyB := b.CopyBoard()
 
 		Ply++
 
 		if !b.MakeMove(m, AllMoves) {
 			Ply--
-
 			continue
 		}
+		legalMoves++
 
-		// score current move
-		score := -b.negamax(-beta, -alpha, depth-1)
-
-		// fmt.Println(m, score)
-
+		score := -b.negamax(-beta, -alpha, depth-1) // score current move
 		Ply--
 
 		b.TakeBack(copyB)
@@ -60,17 +105,21 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 			// if root move
 			if Ply == 0 {
-				// fmt.Println("Updating Best Move So Far", m)
 				bestSoFar = m // Associate best move with the best score
 			}
 		}
 	}
 
-	if oldAlpha != alpha {
-		// fmt.Println(bestSoFar)
-		bestMove = bestSoFar
+	if legalMoves == 0 {
+		if inCheck {
+			return -49000 + Ply
+		}
+		return 0 // if not check then stalemate
 	}
 
+	if oldAlpha != alpha {
+		bestMove = bestSoFar
+	}
 	return alpha // node (move) fails low
 }
 

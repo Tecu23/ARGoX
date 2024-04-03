@@ -21,11 +21,9 @@ func main() {
 	if debug {
 		board := BoardStruct{}
 
-		ParseFEN(&board, StartPosition)
-		board.PrintBoard()
-		board.SearchPosition(7)
+		board.ParsePosition("position startpos moves d2d4 d7d5 b1c3 a7a6 c3d5 d8d5")
 
-		fmt.Printf("Score: %d\n", board.EvaluatePosition())
+		perftTest(&board, 1)
 	} else {
 		fmt.Println("Starting ARGoX")
 		Uci(input())

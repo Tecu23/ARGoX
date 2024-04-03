@@ -301,10 +301,10 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 
 	} else { // capture moves
 		if m.GetCapture() != 0 {
-			b.MakeMove(m, AllMoves)
-		} else {
-			return false // 0 means don't make it
+			return b.MakeMove(m, AllMoves)
 		}
+
+		return false // 0 means don't make it
 	}
 
 	return true

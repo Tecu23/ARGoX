@@ -50,7 +50,7 @@ func perftTest(b *BoardStruct, depth int) {
 
 		copyB := b.CopyBoard()
 
-		if !b.MakeMove(m, AllMoves) {
+		if !b.MakeMove(m, OnlyCaptures) {
 			continue
 		}
 
