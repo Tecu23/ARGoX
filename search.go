@@ -79,5 +79,5 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	// find best move within given position
 	b.negamax(-50000, 50000, depth)
 
-	fmt.Printf("best move %s\n", bestMove)
+	fmt.Printf("bestmove %s\n", bestMove)
 }

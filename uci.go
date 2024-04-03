@@ -147,23 +147,23 @@ func Uci(input chan string) {
 
 			fmt.Printf("uciok\n")
 		case "setoption":
-			fmt.Printf("setoption command not implemented yet")
+			fmt.Printf("setoption command not implemented yet\n")
 		case "isready":
-			fmt.Printf("readyok")
+			fmt.Printf("readyok\n")
 		case "ucinewgame":
 			board.ParsePosition("position startpos")
 		case "position":
 			board.ParsePosition(cmd)
 		case "debug":
-			fmt.Printf("debug command not implemented yet")
+			fmt.Printf("debug command not implemented yet\n")
 		case "register":
-			fmt.Printf("register command not implemented yet")
+			fmt.Printf("register command not implemented yet\n")
 		case "go":
 			board.ParseGo(cmd)
 		case "ponderhit":
-			fmt.Printf("ponderhit command not implemented yet")
+			fmt.Printf("ponderhit command not implemented yet\n")
 		case "stop":
-			fmt.Printf("stop command not implemented yet")
+			fmt.Printf("stop command not implemented yet\n")
 		case "quit", "q":
 			quit = true
 			continue
