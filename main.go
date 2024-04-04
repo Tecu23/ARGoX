@@ -29,7 +29,7 @@ func main() {
 		var mvlist Movelist
 		board.generateMoves(&mvlist)
 
-		board.ListScoreMoves(mvlist)
+		board.sortMoves(mvlist)
 
 	} else {
 		fmt.Println("Starting ARGoX")

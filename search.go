@@ -13,6 +13,25 @@ var bestMove Move
 
 var nodes int
 
+func (b *BoardStruct) sortMoves(mvlist Movelist) {
+	// TODO: Add a faster sorting algorithm
+
+	var moveScores []int
+
+	for _, m := range mvlist {
+		moveScores = append(moveScores, b.scoreMove(m))
+	}
+
+	for i := 0; i < len(moveScores)-1; i++ {
+		for j := i + 1; j < len(moveScores); j++ {
+			if moveScores[i] < moveScores[j] {
+				moveScores[i], moveScores[j] = moveScores[j], moveScores[i]
+				mvlist[i], mvlist[j] = mvlist[j], mvlist[i]
+			}
+		}
+	}
+}
+
 func (b *BoardStruct) scoreMove(mv Move) int {
 	if mv.GetCapture() != 0 {
 		tgtPc := 0
