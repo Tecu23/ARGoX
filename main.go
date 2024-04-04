@@ -24,8 +24,7 @@ func main() {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
-
-		board.SearchPosition(1)
+		board.SearchPosition(5)
 
 	} else {
 		fmt.Println("Starting ARGoX")

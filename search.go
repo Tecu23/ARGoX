@@ -55,12 +55,18 @@ func (b *BoardStruct) scoreMove(mv Move) int {
 			}
 		}
 
-		return MvvLva[mv.GetPiece()][tgtPc] // score move by MVV LVA lookup [source][target]
+		return MvvLva[mv.GetPiece()][tgtPc] + 10000 // score move by MVV LVA lookup [source][target]
 
-	} else { // quiet move
 	}
 
-	return 0
+	// quiet moves
+	if KillerMove[0][Ply] == mv { // score first killer move
+		return 9000
+	} else if KillerMove[1][Ply] == mv {
+		return 8000 // second killer move
+	}
+
+	return HistoryMove[mv.GetPiece()][mv.GetTarget()] // score history move
 }
 
 // ListScoreMoves should list all scores for all moves in a given position
@@ -166,10 +172,19 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 		// fail-hard beta cutoff
 		if score >= beta {
+
+			if m.GetCapture() == 0 {
+				KillerMove[1][Ply] = KillerMove[0][Ply]
+				KillerMove[0][Ply] = m
+			}
+
 			return beta // node (move) fails high
 		}
 
 		if score > alpha {
+			if m.GetCapture() == 0 {
+				HistoryMove[m.GetPiece()][m.GetTarget()] += depth
+			}
 			alpha = score // PV node (move)
 
 			// if root move

@@ -399,6 +399,8 @@ var MirrorScore = [128]int{
 	A1, B1, C1, D1, E1, F1, G1, H1,
 }
 
+/*  SEARCH CONSTANTS */
+
 // most valuable victim & less valuable attacker
 
 /*
@@ -429,3 +431,37 @@ var MvvLva = [12][12]int{
 	{101, 201, 301, 401, 501, 601, 101, 201, 301, 401, 501, 601},
 	{100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600},
 }
+
+// KillerMove [id][ply]
+var KillerMove [2][64]Move
+
+// HistoryMove [piece][square]
+var HistoryMove [12][64]int
+
+/*
+   ================================
+         Triangular PV table
+   --------------------------------
+     PV line: e2e4 e7e5 g1f3 b8c6
+   ================================
+
+        0    1    2    3    4    5
+
+   0    m1   m2   m3   m4   m5   m6
+
+   1    0    m2   m3   m4   m5   m6
+
+   2    0    0    m3   m4   m5   m6
+
+   3    0    0    0    m4   m5   m6
+
+   4    0    0    0    0    m5   m6
+
+   5    0    0    0    0    0    m6
+*/
+
+// PvLength is the length of the pv table
+var PvLength [64]int
+
+// PvTable represents the pv table
+var PvTable [64][64]int
