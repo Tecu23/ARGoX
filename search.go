@@ -127,6 +127,10 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		return b.quiescence(alpha, beta)
 	}
 
+	if Ply > MaxPly-1 {
+		return b.EvaluatePosition()
+	}
+
 	nodes++ // traversed nodes
 
 	var bit int
@@ -206,8 +210,40 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 // SearchPosition should search the current board position for the best move
 func (b *BoardStruct) SearchPosition(depth int) {
+	nodes = 0
+	// clear helper data structures for search
+	KillerMove = [2][64]Move{}
+	HistoryMove = [12][64]int{}
+	PvLength = [64]int{}
+	PvTable = [64][64]Move{}
+
+	score := 0
+
+	for currDepth := 1; currDepth <= depth; currDepth++ {
+		nodes = 0
+		// find best move within given position
+		score = b.negamax(-50000, 50000, currDepth)
+
+		fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
+
+		for i := 0; i < PvLength[0]; i++ {
+			fmt.Printf("%s ", PvTable[0][i])
+		}
+		fmt.Printf("\n")
+
+	}
+
+	// best move placeholder
+	fmt.Printf("bestmove %s\n", PvTable[0][0])
+	nodes = 0
+	// clear helper data structures for search
+	KillerMove = [2][64]Move{}
+	HistoryMove = [12][64]int{}
+	PvLength = [64]int{}
+	PvTable = [64][64]Move{}
+
 	// find best move within given position
-	score := b.negamax(-50000, 50000, depth)
+	score = b.negamax(-50000, 50000, depth)
 
 	fmt.Printf("info score cp %d depth %d nodes %d pv ", score, depth, nodes)
 

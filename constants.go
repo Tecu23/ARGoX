@@ -432,6 +432,9 @@ var MvvLva = [12][12]int{
 	{100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600},
 }
 
+// MaxPly is the maximum ply that we can reach
+const MaxPly = 64
+
 // KillerMove [id][ply]
 var KillerMove [2][64]Move
 
