@@ -24,12 +24,8 @@ func main() {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
-		board.EnPassant = C6
 
-		var mvlist Movelist
-		board.generateMoves(&mvlist)
-
-		board.sortMoves(mvlist)
+		board.SearchPosition(1)
 
 	} else {
 		fmt.Println("Starting ARGoX")

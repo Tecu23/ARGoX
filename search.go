@@ -11,7 +11,8 @@ var Ply int
 // best move
 var bestMove Move
 
-var nodes int
+// TODO: Figure out why there are more nodes than it should (1241 vs 1067)
+var nodes int64
 
 func (b *BoardStruct) sortMoves(mvlist Movelist) {
 	// TODO: Add a faster sorting algorithm
@@ -87,6 +88,8 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 	var moves Movelist
 	b.generateMoves(&moves)
 
+	b.sortMoves(moves)
+
 	for _, m := range moves {
 		copyB := b.CopyBoard()
 
@@ -130,6 +133,11 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	inCheck := b.isSquareAttacked(bit, b.SideToMove.Opp())
 
+	// increase search depth if the king has been exposed to a check
+	if inCheck {
+		depth++
+	}
+
 	legalMoves, bestSoFar := 0, NoMove
 
 	oldAlpha := alpha
@@ -137,6 +145,8 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	// generate moves
 	var moves Movelist
 	b.generateMoves(&moves)
+
+	b.sortMoves(moves)
 
 	for _, m := range moves {
 		copyB := b.CopyBoard()
@@ -185,7 +195,13 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 // SearchPosition should search the current board position for the best move
 func (b *BoardStruct) SearchPosition(depth int) {
 	// find best move within given position
-	b.negamax(-50000, 50000, depth)
+	score := b.negamax(-50000, 50000, depth)
 
 	fmt.Printf("bestmove %s\n", bestMove)
+	if bestMove != 0 {
+		fmt.Printf("info score cp %d depth %d nodes %d\n", score, depth, nodes)
+
+		// best move placeholder
+		fmt.Printf("bestmove %s\n", bestMove)
+	}
 }
