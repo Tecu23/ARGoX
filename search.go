@@ -8,9 +8,6 @@ import (
 // Ply is the half move counter
 var Ply int
 
-// best move
-var bestMove Move
-
 // TODO: Figure out why there are more nodes than it should (1241 vs 1067)
 var nodes int64
 
@@ -124,6 +121,8 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+	PvLength[Ply] = Ply // init PV length
+
 	if depth == 0 { // base case
 		return b.quiescence(alpha, beta)
 	}
@@ -144,9 +143,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		depth++
 	}
 
-	legalMoves, bestSoFar := 0, NoMove
-
-	oldAlpha := alpha
+	legalMoves := 0
 
 	// generate moves
 	var moves Movelist
@@ -187,10 +184,13 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 			}
 			alpha = score // PV node (move)
 
-			// if root move
-			if Ply == 0 {
-				bestSoFar = m // Associate best move with the best score
+			PvTable[Ply][Ply] = m // write PV move
+
+			for nextPly := Ply + 1; nextPly < PvLength[Ply+1]; nextPly++ {
+				PvTable[Ply][nextPly] = PvTable[Ply+1][nextPly] // copy from deeper ply to current ply
 			}
+
+			PvLength[Ply] = PvLength[Ply+1] // adjust PV length
 		}
 	}
 
@@ -201,9 +201,6 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		return 0 // if not check then stalemate
 	}
 
-	if oldAlpha != alpha {
-		bestMove = bestSoFar
-	}
 	return alpha // node (move) fails low
 }
 
@@ -212,11 +209,13 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	// find best move within given position
 	score := b.negamax(-50000, 50000, depth)
 
-	fmt.Printf("bestmove %s\n", bestMove)
-	if bestMove != 0 {
-		fmt.Printf("info score cp %d depth %d nodes %d\n", score, depth, nodes)
+	fmt.Printf("info score cp %d depth %d nodes %d pv ", score, depth, nodes)
 
-		// best move placeholder
-		fmt.Printf("bestmove %s\n", bestMove)
+	for i := 0; i < PvLength[0]; i++ {
+		fmt.Printf("%s ", PvTable[0][i])
 	}
+	fmt.Printf("\n")
+
+	// best move placeholder
+	fmt.Printf("bestmove %s\n", PvTable[0][0])
 }

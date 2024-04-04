@@ -464,4 +464,4 @@ var HistoryMove [12][64]int
 var PvLength [64]int
 
 // PvTable represents the pv table
-var PvTable [64][64]int
+var PvTable [64][64]Move
