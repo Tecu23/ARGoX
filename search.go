@@ -157,7 +157,6 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
-	foundPv := false    // PV node variable
 	PvLength[Ply] = Ply // init PV length
 	movesSearched := 0
 
@@ -224,32 +223,23 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 		score := 0
 
-		if foundPv {
-			// if move > alpha & move < beta => prove rest of moves are bad
-			score = -b.negamax(-alpha-1, -alpha, depth-1)
-
-			// if the alg was wrong then it needs to search again in the normal matter
-			if score > alpha && score < beta {
-				score = -b.negamax(-beta, -alpha, depth-1)
-			}
+		if movesSearched == 0 {
+			score = -b.negamax(-beta, -alpha, depth-1) // do normal search
 		} else {
-			if movesSearched == 0 {
-				score = -b.negamax(-beta, -alpha, depth-1) // do normal search
+			// Late Move Reduction
+			if movesSearched >= FullDepthMoves && depth >= ReductionLimit && !inCheck && m.GetCapture() == 0 && m.GetPromoted() == 0 {
+				score = -b.negamax(-alpha-1, -alpha, depth-2)
 			} else {
+				score = alpha + 1 // Hack to ensure the full-depth search
+			}
 
-				// Late Move Reduction
-				if movesSearched >= FullDepthMoves && depth >= ReductionLimit && !inCheck && m.GetCapture() == 0 && m.GetPromoted() == 0 {
-					score = -b.negamax(-alpha-1, -alpha, depth-2)
-				} else {
-					score = alpha + 1 // Hack to ensure the full-depth search
-				}
+			if score > alpha { // aspiration window
+				// if move > alpha & move < beta => prove rest of moves are bad
+				score = -b.negamax(-alpha-1, -alpha, depth-1)
 
-				if score > alpha { // aspiration window
-					score = -b.negamax(-alpha-1, -alpha, depth-1)
-
-					if score > alpha && score < beta {
-						score = -b.negamax(-beta, -alpha, depth-1)
-					}
+				// if the alg was wrong then it needs to search again in the normal matter
+				if score > alpha && score < beta {
+					score = -b.negamax(-beta, -alpha, depth-1)
 				}
 			}
 		}
@@ -272,7 +262,6 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 				HistoryMove[m.GetPiece()][m.GetTarget()] += depth
 			}
 			alpha = score         // PV node (move)
-			foundPv = true        // enable found PV flag
 			PvTable[Ply][Ply] = m // write PV move
 
 			for nextPly := Ply + 1; nextPly < PvLength[Ply+1]; nextPly++ {
