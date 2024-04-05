@@ -11,6 +11,11 @@ var Ply int
 // TODO: Figure out why there are more nodes than it should (1241 vs 1067)
 var nodes int64
 
+const (
+	FullDepthMoves = 4
+	ReductionLimit = 3
+)
+
 func (b *BoardStruct) enablePvScoring(mvlist Movelist) {
 	FollowPv = false
 
@@ -40,6 +45,19 @@ func (b *BoardStruct) sortMoves(mvlist Movelist) {
 		}
 	}
 }
+
+/*  =======================
+         Move ordering
+    =======================
+
+    1. PV move
+    2. Captures in MVV/LVA
+    3. 1st killer move
+    4. 2nd killer move
+    5. History moves
+    6. Unsorted moves
+
+*/
 
 func (b *BoardStruct) scoreMove(mv Move) int {
 	if ScorePv {
@@ -141,6 +159,7 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	foundPv := false    // PV node variable
 	PvLength[Ply] = Ply // init PV length
+	movesSearched := 0
 
 	if depth == 0 { // base case
 		return b.quiescence(alpha, beta)
@@ -200,12 +219,30 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 				score = -b.negamax(-beta, -alpha, depth-1)
 			}
 		} else {
-			// for all other types of nodes (moves) do normal alpha beta search
-			score = -b.negamax(-beta, -alpha, depth-1)
+			if movesSearched == 0 {
+				score = -b.negamax(-beta, -alpha, depth-1) // do normal search
+			} else {
+
+				// Late Move Reduction
+				if movesSearched >= FullDepthMoves && depth >= ReductionLimit && !inCheck && m.GetCapture() == 0 && m.GetPromoted() == 0 {
+					score = -b.negamax(-alpha-1, -alpha, depth-2)
+				} else {
+					score = alpha + 1 // Hack to ensure the full-depth search
+				}
+
+				if score > alpha { // aspiration window
+					score = -b.negamax(-alpha-1, -alpha, depth-1)
+
+					if score > alpha && score < beta {
+						score = -b.negamax(-beta, -alpha, depth-1)
+					}
+				}
+			}
 		}
 
 		Ply--
 		b.TakeBack(copyB)
+		movesSearched++
 
 		// fail-hard beta cutoff
 		if score >= beta {

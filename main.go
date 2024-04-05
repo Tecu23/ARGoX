@@ -23,7 +23,7 @@ func main() {
 	if debug {
 		board := BoardStruct{}
 
-		ParseFEN(&board, TrickyPosition)
+		ParseFEN(&board, CmkPosition)
 		board.SearchPosition(6)
 
 	} else {
