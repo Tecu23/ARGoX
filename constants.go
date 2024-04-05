@@ -468,3 +468,9 @@ var PvLength [64]int
 
 // PvTable represents the pv table
 var PvTable [64][64]Move
+
+// FollowPv should follow the Priciple Variation
+var FollowPv = false
+
+// ScorePv should keep the score of the PV
+var ScorePv = false

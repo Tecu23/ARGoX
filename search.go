@@ -11,6 +11,17 @@ var Ply int
 // TODO: Figure out why there are more nodes than it should (1241 vs 1067)
 var nodes int64
 
+func (b *BoardStruct) enablePvScoring(mvlist Movelist) {
+	FollowPv = false
+
+	for _, m := range mvlist {
+		if PvTable[0][Ply] == m {
+			ScorePv = true
+			FollowPv = true
+		}
+	}
+}
+
 func (b *BoardStruct) sortMoves(mvlist Movelist) {
 	// TODO: Add a faster sorting algorithm
 
@@ -31,6 +42,16 @@ func (b *BoardStruct) sortMoves(mvlist Movelist) {
 }
 
 func (b *BoardStruct) scoreMove(mv Move) int {
+	if ScorePv {
+		if PvTable[0][Ply] == mv {
+			ScorePv = false
+
+			fmt.Printf("current Pv move: %s ply: %d\n", mv, Ply)
+
+			return 20000 // give PV the highest score to search it first
+		}
+	}
+
 	if mv.GetCapture() != 0 {
 		tgtPc := 0
 		tgtSq := mv.GetTarget()
@@ -153,6 +174,10 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	var moves Movelist
 	b.generateMoves(&moves)
 
+	if FollowPv {
+		b.enablePvScoring(moves) // enable PV move scoring
+	}
+
 	b.sortMoves(moves)
 
 	for _, m := range moves {
@@ -217,10 +242,16 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	PvLength = [64]int{}
 	PvTable = [64][64]Move{}
 
+	FollowPv = false
+	ScorePv = false
+
 	score := 0
 
 	for currDepth := 1; currDepth <= depth; currDepth++ {
 		nodes = 0
+
+		FollowPv = true // enable FollowPv
+
 		// find best move within given position
 		score = b.negamax(-50000, 50000, currDepth)
 
@@ -241,6 +272,9 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	HistoryMove = [12][64]int{}
 	PvLength = [64]int{}
 	PvTable = [64][64]Move{}
+
+	FollowPv = false
+	ScorePv = false
 
 	// find best move within given position
 	score = b.negamax(-50000, 50000, depth)
