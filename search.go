@@ -45,9 +45,6 @@ func (b *BoardStruct) scoreMove(mv Move) int {
 	if ScorePv {
 		if PvTable[0][Ply] == mv {
 			ScorePv = false
-
-			fmt.Printf("current Pv move: %s ply: %d\n", mv, Ply)
-
 			return 20000 // give PV the highest score to search it first
 		}
 	}
@@ -142,6 +139,7 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+	foundPv := false    // PV node variable
 	PvLength[Ply] = Ply // init PV length
 
 	if depth == 0 { // base case
@@ -191,19 +189,30 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		}
 		legalMoves++
 
-		score := -b.negamax(-beta, -alpha, depth-1) // score current move
-		Ply--
+		score := 0
 
+		if foundPv {
+			// if move > alpha & move < beta => prove rest of moves are bad
+			score = -b.negamax(-alpha-1, -alpha, depth-1)
+
+			// if the alg was wrong then it needs to search again in the normal matter
+			if score > alpha && score < beta {
+				score = -b.negamax(-beta, -alpha, depth-1)
+			}
+		} else {
+			// for all other types of nodes (moves) do normal alpha beta search
+			score = -b.negamax(-beta, -alpha, depth-1)
+		}
+
+		Ply--
 		b.TakeBack(copyB)
 
 		// fail-hard beta cutoff
 		if score >= beta {
-
 			if m.GetCapture() == 0 {
 				KillerMove[1][Ply] = KillerMove[0][Ply]
 				KillerMove[0][Ply] = m
 			}
-
 			return beta // node (move) fails high
 		}
 
@@ -211,14 +220,13 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 			if m.GetCapture() == 0 {
 				HistoryMove[m.GetPiece()][m.GetTarget()] += depth
 			}
-			alpha = score // PV node (move)
-
+			alpha = score         // PV node (move)
+			foundPv = true        // enable found PV flag
 			PvTable[Ply][Ply] = m // write PV move
 
 			for nextPly := Ply + 1; nextPly < PvLength[Ply+1]; nextPly++ {
 				PvTable[Ply][nextPly] = PvTable[Ply+1][nextPly] // copy from deeper ply to current ply
 			}
-
 			PvLength[Ply] = PvLength[Ply+1] // adjust PV length
 		}
 	}
@@ -248,8 +256,6 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	score := 0
 
 	for currDepth := 1; currDepth <= depth; currDepth++ {
-		nodes = 0
-
 		FollowPv = true // enable FollowPv
 
 		// find best move within given position
@@ -263,28 +269,6 @@ func (b *BoardStruct) SearchPosition(depth int) {
 		fmt.Printf("\n")
 
 	}
-
-	// best move placeholder
-	fmt.Printf("bestmove %s\n", PvTable[0][0])
-	nodes = 0
-	// clear helper data structures for search
-	KillerMove = [2][64]Move{}
-	HistoryMove = [12][64]int{}
-	PvLength = [64]int{}
-	PvTable = [64][64]Move{}
-
-	FollowPv = false
-	ScorePv = false
-
-	// find best move within given position
-	score = b.negamax(-50000, 50000, depth)
-
-	fmt.Printf("info score cp %d depth %d nodes %d pv ", score, depth, nodes)
-
-	for i := 0; i < PvLength[0]; i++ {
-		fmt.Printf("%s ", PvTable[0][i])
-	}
-	fmt.Printf("\n")
 
 	// best move placeholder
 	fmt.Printf("bestmove %s\n", PvTable[0][0])
