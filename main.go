@@ -23,8 +23,8 @@ func main() {
 	if debug {
 		board := BoardStruct{}
 
-		ParseFEN(&board, CmkPosition)
-		board.SearchPosition(6)
+		ParseFEN(&board, TrickyPosition)
+		board.SearchPosition(7)
 
 	} else {
 		fmt.Println("Starting ARGoX")

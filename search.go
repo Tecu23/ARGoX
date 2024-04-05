@@ -187,6 +187,20 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	legalMoves := 0
 
+	// Null Move Pruning
+	if depth >= 3 && !inCheck && Ply != 0 {
+		copyBoard := b.CopyBoard()
+		b.SideToMove = b.SideToMove.Opp()
+		b.EnPassant = -1
+		// find beta cuttoffs
+		sc := -b.negamax(-beta, -beta+1, depth-1-2) // depth - 1 -R where R is reduction limit
+
+		b.TakeBack(copyBoard)
+		if sc >= beta {
+			return beta
+		}
+	}
+
 	// generate moves
 	var moves Movelist
 	b.generateMoves(&moves)
