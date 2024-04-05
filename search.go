@@ -306,11 +306,23 @@ func (b *BoardStruct) SearchPosition(depth int) {
 
 	score := 0
 
+	alpha := -50000
+	beta := 50000
+
 	for currDepth := 1; currDepth <= depth; currDepth++ {
 		FollowPv = true // enable FollowPv
 
 		// find best move within given position
-		score = b.negamax(-50000, 50000, currDepth)
+		score = b.negamax(alpha, beta, currDepth)
+
+		if score <= alpha || score >= beta {
+			alpha = -50000
+			beta = 50000
+			continue
+		}
+
+		alpha = score - 50
+		beta = score + 50
 
 		fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
 
