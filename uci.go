@@ -73,17 +73,15 @@ func (b *BoardStruct) ParseMoves(cmd string) error {
 }
 
 // ParseGo should parse the go command
-func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
+func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
+	limits.init()
 	cmd = strings.TrimSpace(strings.TrimPrefix(cmd, "go"))
-
 	words := strings.Split(cmd, " ")
 
-	if len(words) > 0 {
-		words[0] = strings.TrimSpace(strings.ToLower(words[0]))
+	for i := range words {
+		words[i] = strings.TrimSpace(strings.ToLower(words[i]))
 
-		fmt.Println(words)
-
-		switch words[0] {
+		switch words[i] {
 		case "searchmoves":
 			return fmt.Errorf("go searchmoves not implemented")
 		case "ponder":
@@ -91,8 +89,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "wtime":
 			arg, err := 0, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -105,8 +103,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "btime":
 			arg, err := 0, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -119,8 +117,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "winc":
 			arg, err := 0, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -133,8 +131,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "binc":
 			arg, err := 0, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -148,8 +146,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "movestogo":
 			arg, err := 0, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -160,8 +158,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "depth":
 			arg, err := -1, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -173,8 +171,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "movetime":
 			arg, err := -1, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -191,8 +189,8 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 		case "perft":
 			arg, err := -1, error(nil)
 
-			if len(words) >= 2 {
-				arg, err = strconv.Atoi(words[1])
+			if len(words) > i+1 {
+				arg, err = strconv.Atoi(words[i+1])
 			}
 
 			if arg < 0 || err != nil {
@@ -202,10 +200,9 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			perftTest(b, arg)
 			return nil
 		default:
-			return fmt.Errorf("go %v not implemented", words[0])
+			continue
+			// return fmt.Errorf("go %v not implemented", words[0])
 		}
-	} else {
-		fmt.Printf("suppose go infinite")
 	}
 
 	toEng <- true
@@ -214,6 +211,13 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 }
 
 func handleBm(bm string) {
+	if limits.Infinite {
+		if saveBm != NoMove {
+			// TODO: Handle this
+			// saveBm = bm
+			return
+		}
+	}
 	fmt.Println(bm)
 }
 
@@ -227,8 +231,6 @@ func Uci(input chan string) {
 
 	quit := false
 
-	stopped := false // flag when the time is up
-
 	for !quit {
 		select {
 		case cmd = <-input:
@@ -236,9 +238,6 @@ func Uci(input chan string) {
 			handleBm(bm)
 			continue
 		}
-
-		fmt.Println(cmd)
-		fmt.Println(bm)
 
 		words := strings.Split(cmd, " ")
 		words[0] = strings.TrimSpace(strings.ToLower(words[0]))
@@ -262,7 +261,7 @@ func Uci(input chan string) {
 		case "register":
 			fmt.Printf("register command not implemented yet\n")
 		case "go":
-			board.ParseGo(cmd, stopped, toEng)
+			board.ParseGo(cmd, toEng)
 		case "ponderhit":
 			fmt.Printf("ponderhit command not implemented yet\n")
 		case "stop":
@@ -271,7 +270,6 @@ func Uci(input chan string) {
 					fmt.Println(saveBm)
 					saveBm = NoMove
 				}
-
 				limits.setInfinite(false)
 			}
 			limits.setStop(true)

@@ -22,7 +22,7 @@ type searchLimits struct {
 }
 
 func (s *searchLimits) init() {
-	s.Depth = 0
+	s.Depth = -1
 	s.MovesToGo = 30
 	s.MoveTime = -1
 	s.Infinite = false
