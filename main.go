@@ -7,6 +7,7 @@ import (
 )
 
 // TODO: Makefile
+// TODO: Make a helper function to print to STDIN
 // TODO: Fix optimal magic problem
 func main() {
 	debug := flag.Bool("d", false, "debugging option")
