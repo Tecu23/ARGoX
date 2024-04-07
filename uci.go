@@ -76,16 +76,6 @@ func (b *BoardStruct) ParseMoves(cmd string) error {
 
 // ParseGo should parse the go command
 func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
-	startTime := int64(0) // "startime" command time holder
-	stopTime := int64(0)  // "stoptime" command time holder
-	movesToGo := 30       // UCI moves counter
-	moveTime := -1        // UCI time counter
-	time := -1            // time command holder (ms)
-	inc := 0              // command's time increment holder
-	d := -1               // depth of the search
-
-	timeset := false // varibale to falg time control availability
-
 	cmd = strings.TrimSpace(strings.TrimPrefix(cmd, "go"))
 
 	words := strings.Split(cmd, " ")
@@ -112,7 +102,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			}
 
 			if b.SideToMove == WHITE {
-				inc = arg
+				limits.Time = arg
 			}
 		case "btime":
 			arg, err := 0, error(nil)
@@ -126,7 +116,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			}
 
 			if b.SideToMove == BLACK {
-				inc = arg
+				limits.Time = arg
 			}
 		case "winc":
 			arg, err := 0, error(nil)
@@ -140,7 +130,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			}
 
 			if b.SideToMove == WHITE {
-				inc = arg
+				limits.Inc = arg
 			}
 		case "binc":
 			arg, err := 0, error(nil)
@@ -154,7 +144,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			}
 
 			if b.SideToMove == BLACK {
-				inc = arg
+				limits.Inc = arg
 			}
 
 		case "movestogo":
@@ -168,7 +158,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 				return fmt.Errorf("time value not numeric")
 			}
 
-			movesToGo = arg
+			limits.MovesToGo = arg
 		case "depth":
 			arg, err := -1, error(nil)
 
@@ -179,9 +169,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 			if arg < 0 || err != nil {
 				return fmt.Errorf("depth not numeric")
 			}
-
-			d = arg
-
+			limits.setDepth(arg)
 		case "nodes":
 			return fmt.Errorf("go nodes not implemented")
 		case "movetime":
@@ -195,7 +183,7 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 				return fmt.Errorf("depth not numeric")
 			}
 
-			moveTime = arg
+			limits.MoveTime = arg
 		case "mate": // mate <x>  mate in x moves
 			return fmt.Errorf("go mate not implemented")
 		case "infinite":
@@ -221,38 +209,6 @@ func (b *BoardStruct) ParseGo(cmd string, stopped bool, toEng chan bool) error {
 	} else {
 		fmt.Printf("suppose go infinite")
 	}
-
-	if moveTime != -1 { // if move time is not available
-		time = moveTime
-		movesToGo = 1
-	}
-
-	startTime = GetTimeInMiliseconds()
-
-	if time != -1 { // if time control is available
-		timeset = true
-
-		time /= movesToGo
-		time -= 50
-		stopTime = startTime + int64(time) + int64(inc)
-	}
-
-	// if depth not available use 64 as default
-	if d == -1 {
-		d = 64
-	}
-
-	fmt.Printf(
-		"time:%d, start:%d, stop:%d, depth:%d timeset:%t stopped:%t\n",
-		time,
-		startTime,
-		stopTime,
-		d,
-		timeset,
-		stopped,
-	)
-
-	limits.setDepth(d)
 
 	toEng <- true
 

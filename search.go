@@ -111,11 +111,12 @@ func (b *BoardStruct) ListScoreMoves(mvlist Movelist) {
 }
 
 func (b *BoardStruct) quiescence(alpha, beta int) int {
-	// if nodes&2047 == 0 {
-	// TODO: implement this
-	// communicate the best move to the GUI / user
-	// Possibly not needted
-	// }
+	if nodes&2047 == 0 {
+		// stop the search if the time passed
+		if limits.Timeset && GetTimeInMiliseconds() > limits.StopTime {
+			limits.setStop(true)
+		}
+	}
 
 	nodes++
 
@@ -163,11 +164,12 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
-	// if nodes&2047 == 0 {
-	// TODO: implement this
-	// communicate the best move to the GUI/user
-	// Possibly not needed
-	// }
+	if nodes&2047 == 0 {
+		// stop the search if the time passed
+		if limits.Timeset && GetTimeInMiliseconds() > limits.StopTime {
+			limits.setStop(true)
+		}
+	}
 
 	PvLength[Ply] = Ply // init PV length
 	movesSearched := 0
