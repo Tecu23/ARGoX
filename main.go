@@ -18,13 +18,13 @@ func main() {
 
 	InitMaterialScore()
 
-	debug := true
+	debug := false
 
 	if debug {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
-		board.SearchPosition(10)
+		board.SearchPosition(9)
 
 	} else {
 		fmt.Println("Starting ARGoX")

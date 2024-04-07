@@ -42,7 +42,7 @@ func perftTest(b *BoardStruct, depth int) {
 
 	b.generateMoves(&whiteMoves)
 
-	fmt.Printf("\n     Performance test\n\n")
+	fmt.Printf("\n  Performance test\n\n")
 	start := GetTimeInMiliseconds()
 
 	for _, m := range whiteMoves {
@@ -50,24 +50,18 @@ func perftTest(b *BoardStruct, depth int) {
 
 		copyB := b.CopyBoard()
 
-		if !b.MakeMove(m, OnlyCaptures) {
+		if !b.MakeMove(m, AllMoves) {
 			continue
-		}
-
-		if m.GetSource() == F4 && m.GetTarget() == G3 {
-			fmt.Printf("\n %d \n ", m)
 		}
 		perftDriver(b, depth-1)
 
 		// take back move
 		b.TakeBack(copyB)
 
-		fmt.Printf("%s: %d \n", m.String(), Nodes)
+		fmt.Printf("%s: %d\n", m, Nodes)
 
 		totalMoves += Nodes
 	}
 	// print results
-	fmt.Printf("\n    Depth: %d\n", depth)
-	fmt.Printf("    Nodes: %d\n", totalMoves)
-	fmt.Printf("     Time: %d\n\n", GetTimeInMiliseconds()-start)
+	fmt.Printf("\n Nodes: %d Time: %d\n\n ", totalMoves, GetTimeInMiliseconds()-start)
 }

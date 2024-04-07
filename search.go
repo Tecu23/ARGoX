@@ -111,6 +111,12 @@ func (b *BoardStruct) ListScoreMoves(mvlist Movelist) {
 }
 
 func (b *BoardStruct) quiescence(alpha, beta int) int {
+	// if nodes&2047 == 0 {
+	// TODO: implement this
+	// communicate the best move to the GUI / user
+	// Possibly not needted
+	// }
+
 	nodes++
 
 	evaluation := b.EvaluatePosition()
@@ -157,6 +163,12 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+	// if nodes&2047 == 0 {
+	// TODO: implement this
+	// communicate the best move to the GUI/user
+	// Possibly not needed
+	// }
+
 	PvLength[Ply] = Ply // init PV length
 	movesSearched := 0
 
@@ -195,6 +207,11 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		sc := -b.negamax(-beta, -beta+1, depth-1-2) // depth - 1 -R where R is reduction limit
 
 		b.TakeBack(copyBoard)
+
+		if limits.Stop {
+			return 0
+		}
+
 		if sc >= beta {
 			return beta
 		}
@@ -246,6 +263,9 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 		Ply--
 		b.TakeBack(copyB)
+		if limits.Stop {
+			return 0
+		}
 		movesSearched++
 
 		// fail-hard beta cutoff
@@ -282,8 +302,11 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 }
 
 // SearchPosition should search the current board position for the best move
-func (b *BoardStruct) SearchPosition(depth int) {
+func (b *BoardStruct) SearchPosition(depth int) Move {
 	nodes = 0
+
+	limits.setStop(false)
+
 	// clear helper data structures for search
 	KillerMove = [2][64]Move{}
 	HistoryMove = [12][64]int{}
@@ -323,5 +346,5 @@ func (b *BoardStruct) SearchPosition(depth int) {
 	}
 
 	// best move placeholder
-	fmt.Printf("bestmove %s\n", PvTable[0][0])
+	return PvTable[0][0]
 }
