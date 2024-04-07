@@ -1,11 +1,34 @@
 // Package main contains the startup function and logic of the engine
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+)
 
-// TODO: Make debug as a flag
+// TODO: Makefile
 // TODO: Fix optimal magic problem
 func main() {
+	debug := flag.Bool("d", false, "debugging option")
+
+	flag.Parse()
+
+	initHelpers()
+
+	if *debug {
+		board := BoardStruct{}
+
+		ParseFEN(&board, TrickyPosition)
+		board.SearchPosition(9)
+
+	} else {
+		fmt.Println("Starting ARGoX")
+		Uci(input())
+		fmt.Println("Quiting ARGoX")
+	}
+}
+
+func initHelpers() {
 	InitPawnAttacks()
 	InitKnightAttacks()
 	InitKingAttacks()
@@ -17,18 +40,4 @@ func main() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	InitMaterialScore()
-
-	debug := false
-
-	if debug {
-		board := BoardStruct{}
-
-		ParseFEN(&board, TrickyPosition)
-		board.SearchPosition(9)
-
-	} else {
-		fmt.Println("Starting ARGoX")
-		Uci(input())
-		fmt.Println("Quiting ARGoX")
-	}
 }

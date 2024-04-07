@@ -2,8 +2,6 @@ package main
 
 // TODO: Add some sort of helper commands for debugging
 
-// TODO: Make engine run in a separate channel so that it can be stopped
-
 import (
 	"bufio"
 	"fmt"
