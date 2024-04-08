@@ -19,12 +19,11 @@ func main() {
 	if *debug {
 		board := BoardStruct{}
 		ParseFEN(&board, StartPosition)
+		board.SearchPosition(10)
 
-		TransTable.Clear()
-		TransTable.WriteEntry(45, 1, HashfBeta, board.Key)
+		board.MakeMove(PvTable[0][0], AllMoves)
 
-		score := TransTable.ReadEntry(20, 30, 1, board.Key)
-		fmt.Printf("%d\n", score)
+		board.SearchPosition(10)
 
 	} else {
 		fmt.Println("Starting ARGoX")
@@ -47,4 +46,6 @@ func initHelpers() {
 	InitMaterialScore()
 
 	InitRandomHashKeys()
+
+	TransTable.Clear()
 }

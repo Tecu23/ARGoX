@@ -9,6 +9,7 @@ import (
 var Ply int
 
 // TODO: Figure out why there are more nodes than it should (1241 vs 1067)
+// TODO: Figure out why there are so many more nodes being searched
 var nodes int64
 
 const (
@@ -117,15 +118,15 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 			limits.setStop(true)
 		}
 	}
-
 	nodes++
+	if Ply < MaxPly-1 {
+		return b.EvaluatePosition()
+	}
 
 	evaluation := b.EvaluatePosition()
-
 	if evaluation >= beta {
 		return beta
 	}
-
 	if evaluation > alpha {
 		alpha = evaluation
 	}
@@ -133,13 +134,12 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 	// generate moves
 	var moves Movelist
 	b.generateMoves(&moves)
-
 	b.sortMoves(moves)
 
 	for _, m := range moves {
 		copyB := b.CopyBoard()
-
 		Ply++
+
 		if !b.MakeMove(m, OnlyCaptures) {
 			Ply--
 			continue
@@ -147,16 +147,19 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 		score := -b.quiescence(-beta, -alpha) // score current move
 
 		Ply--
-
 		b.TakeBack(copyB)
 
-		// fail-hard beta cutoff
-		if score >= beta {
-			return beta // node (move) fails high
+		if limits.Stop {
+			return 0
 		}
 
 		if score > alpha {
 			alpha = score // PV node (move)
+
+			// fail-hard beta cutoff
+			if score >= beta {
+				return beta // node (move) fails high
+			}
 		}
 	}
 	return alpha // node (move) fails low
@@ -164,6 +167,16 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+	score := 0
+
+	hashFlag := HashfAlpha
+
+	// read hash entry and if the move has already been searched => return the score
+	score = TransTable.ReadEntry(alpha, beta, depth, b.Key)
+	if Ply > 0 && score != NoHashEntry {
+		return score
+	}
+
 	if nodes&2047 == 0 {
 		// stop the search if the time passed
 		if limits.Timeset && GetTimeInMiliseconds() > limits.StopTime {
@@ -172,7 +185,6 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	}
 
 	PvLength[Ply] = Ply // init PV length
-	movesSearched := 0
 
 	if depth == 0 { // base case
 		return b.quiescence(alpha, beta)
@@ -203,11 +215,18 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	// Null Move Pruning
 	if depth >= 3 && !inCheck && Ply != 0 {
 		copyBoard := b.CopyBoard()
-		b.SideToMove = b.SideToMove.Opp()
+		Ply++
+		if b.EnPassant != -1 {
+			b.Key ^= EnpassantKeys[b.EnPassant]
+		}
+
 		b.EnPassant = -1
+		b.SideToMove = b.SideToMove.Opp()
+		b.Key ^= SideKey
 		// find beta cuttoffs
 		sc := -b.negamax(-beta, -beta+1, depth-1-2) // depth - 1 -R where R is reduction limit
 
+		Ply--
 		b.TakeBack(copyBoard)
 
 		if limits.Stop {
@@ -228,10 +247,10 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	}
 
 	b.sortMoves(moves)
+	movesSearched := 0
 
 	for _, m := range moves {
 		copyB := b.CopyBoard()
-
 		Ply++
 
 		if !b.MakeMove(m, AllMoves) {
@@ -239,8 +258,6 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 			continue
 		}
 		legalMoves++
-
-		score := 0
 
 		if movesSearched == 0 {
 			score = -b.negamax(-beta, -alpha, depth-1) // do normal search
@@ -270,16 +287,9 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		}
 		movesSearched++
 
-		// fail-hard beta cutoff
-		if score >= beta {
-			if m.GetCapture() == 0 {
-				KillerMove[1][Ply] = KillerMove[0][Ply]
-				KillerMove[0][Ply] = m
-			}
-			return beta // node (move) fails high
-		}
-
 		if score > alpha {
+			hashFlag = HashfExact // switch from fail low to exact
+
 			if m.GetCapture() == 0 {
 				HistoryMove[m.GetPiece()][m.GetTarget()] += depth
 			}
@@ -290,6 +300,17 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 				PvTable[Ply][nextPly] = PvTable[Ply+1][nextPly] // copy from deeper ply to current ply
 			}
 			PvLength[Ply] = PvLength[Ply+1] // adjust PV length
+
+			// fail-hard beta cutoff
+			if score >= beta {
+				// store hash entry with the score equal to beta
+				TransTable.WriteEntry(beta, depth, HashfBeta, b.Key)
+				if m.GetCapture() == 0 {
+					KillerMove[1][Ply] = KillerMove[0][Ply]
+					KillerMove[0][Ply] = m
+				}
+				return beta // node (move) fails high
+			}
 		}
 	}
 
@@ -299,6 +320,8 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		}
 		return 0 // if not check then stalemate
 	}
+
+	TransTable.WriteEntry(alpha, depth, hashFlag, b.Key)
 
 	return alpha // node (move) fails low
 }

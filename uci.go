@@ -254,6 +254,7 @@ func Uci(input chan string) {
 			fmt.Printf("readyok\n")
 		case "ucinewgame":
 			board.ParsePosition("position startpos")
+			TransTable.Clear()
 		case "position":
 			board.ParsePosition(cmd)
 		case "debug":
@@ -286,7 +287,7 @@ func Uci(input chan string) {
 		case "key":
 			fmt.Printf("Current Position key: %X\n", board.generateHashKey())
 		default:
-			fmt.Printf("unknown cmd %v", cmd)
+			fmt.Printf("unknown cmd %v\n", cmd)
 		}
 	}
 }

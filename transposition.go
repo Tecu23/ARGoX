@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 // HashSize is the size of the tt
 const HashSize = 0x400000
 
@@ -43,17 +41,14 @@ func (t *tt) ReadEntry(alpha, beta, depth int, key uint64) int {
 	if hashEntry.Key == key {
 		if hashEntry.Depth >= depth {
 			if hashEntry.Flags == HashfExact {
-				fmt.Printf("exact score: ")
 				return hashEntry.Score
 			}
 
 			if hashEntry.Flags == HashfAlpha && hashEntry.Score <= alpha {
-				fmt.Printf("alpha score: ")
 				return alpha
 			}
 
 			if hashEntry.Flags == HashfBeta && hashEntry.Score >= beta {
-				fmt.Printf("beta score: ")
 				return beta
 			}
 		}
