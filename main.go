@@ -18,9 +18,13 @@ func main() {
 
 	if *debug {
 		board := BoardStruct{}
+		ParseFEN(&board, StartPosition)
 
-		ParseFEN(&board, TrickyPosition)
-		perftTest(&board, 6)
+		TransTable.Clear()
+		TransTable.WriteEntry(45, 1, HashfBeta, board.Key)
+
+		score := TransTable.ReadEntry(20, 30, 1, board.Key)
+		fmt.Printf("%d\n", score)
 
 	} else {
 		fmt.Println("Starting ARGoX")
