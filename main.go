@@ -20,7 +20,6 @@ func main() {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
-		board.SearchPosition(9)
 
 	} else {
 		fmt.Println("Starting ARGoX")
@@ -41,4 +40,6 @@ func initHelpers() {
 	GenerateSliderPiecesAttacks(Rook)   // rook
 
 	InitMaterialScore()
+
+	InitRandomHashKeys()
 }

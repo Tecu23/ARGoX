@@ -2,6 +2,36 @@ package main
 
 import "fmt"
 
+// PieceKeys keeps random piece keys [piece][square]
+var PieceKeys [12][64]uint64
+
+// EnpassantKeys keeps random enpassant keys
+var EnpassantKeys [64]uint64
+
+// CastlingKeys keeps radom castling keys
+var CastlingKeys [16]uint64
+
+// SideKey keeps random side key
+var SideKey uint64
+
+// InitRandomHashKeys should initialize random hash keys
+func InitRandomHashKeys() {
+	randomState := uint32(1804289383)
+
+	for p := WP; p <= BK; p++ {
+		for sq := A1; sq <= H8; sq++ {
+			PieceKeys[p][sq] = generateRandomUint64Number(&randomState)
+		}
+	}
+	for sq := A1; sq <= H8; sq++ {
+		EnpassantKeys[sq] = generateRandomUint64Number(&randomState)
+	}
+	for i := 0; i < 16; i++ {
+		CastlingKeys[i] = generateRandomUint64Number(&randomState)
+	}
+	SideKey = generateRandomUint64Number(&randomState)
+}
+
 // BoardStruct represent a board representation
 type BoardStruct struct {
 	Bitboards [12]Bitboard // define piece bitboards

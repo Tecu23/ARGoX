@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 )
 
 // masks
@@ -34,6 +33,39 @@ func InitMagic() {
 	}
 
 	fmt.Printf("};\n\n")
+}
+
+func generateRandomUint32Number(randomState *uint32) uint32 {
+	number := *randomState
+
+	number ^= (number << 13)
+	number ^= (number >> 17)
+	number ^= (number << 5)
+
+	*randomState = number
+
+	return number
+}
+
+func generateRandomUint64Number(randomState *uint32) uint64 {
+	var n1, n2, n3, n4 uint64
+
+	n1 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n2 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n3 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n4 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+
+	return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48)
+}
+
+func generateMagicNumber(randomState *uint32) uint64 {
+	return generateRandomUint64Number(
+		randomState,
+	) & generateRandomUint64Number(
+		randomState,
+	) & generateRandomUint64Number(
+		randomState,
+	)
 }
 
 func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
@@ -69,12 +101,13 @@ func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
 			attacks[count] = GenerateRookAttacksOnTheFly(square, occupancy[count])
 		}
 	}
+	randomState := uint32(1804289383)
 
 	// test magic numbers
 	for randomCount := 0; randomCount < 100000000; randomCount++ {
 
 		// init magic number candidate
-		magic := Bitboard(rand.Uint64())
+		magic := Bitboard(generateMagicNumber(&randomState))
 
 		// skip testing magic number if innappropriate
 		if Bitboard((maskAttacks*magic)&0xFF00000000000000).Count() < 6 {
