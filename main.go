@@ -20,6 +20,7 @@ func main() {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
+		board.PrintBoard()
 
 	} else {
 		fmt.Println("Starting ARGoX")

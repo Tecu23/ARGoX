@@ -89,6 +89,8 @@ func ParseFEN(Board *BoardStruct, FEN string) {
 		}
 	}
 
+	Board.Key = Board.generateHashKey()
+
 	// Cheking for 50 move rule
 	// Board.Rule50 = 0
 	// if len(remaining) > 3 {

@@ -32,6 +32,33 @@ func InitRandomHashKeys() {
 	SideKey = generateRandomUint64Number(&randomState)
 }
 
+func (b *BoardStruct) generateHashKey() uint64 {
+	finalKey := uint64(0)
+
+	bb := Bitboard(0)
+
+	for p := WP; p <= BK; p++ {
+		bb = b.Bitboards[p]
+
+		for bb != 0 {
+			sq := bb.FirstOne()
+			finalKey ^= PieceKeys[p][sq]
+		}
+	}
+
+	if b.EnPassant != -1 {
+		finalKey ^= EnpassantKeys[b.EnPassant]
+	}
+
+	finalKey ^= CastlingKeys[b.Castlings]
+
+	if b.SideToMove == BLACK {
+		finalKey ^= SideKey
+	}
+
+	return finalKey
+}
+
 // BoardStruct represent a board representation
 type BoardStruct struct {
 	Bitboards [12]Bitboard // define piece bitboards
@@ -41,12 +68,15 @@ type BoardStruct struct {
 	SideToMove Color
 	EnPassant  int
 	Castlings
+
+	Key uint64
 }
 
 // Clear should clear the board, flags, bitboards etc
 func (b *BoardStruct) Clear() {
 	b.SideToMove = WHITE
 	// b.Rule50 = 0
+	b.Key = 0
 	b.EnPassant = -1
 	b.Castlings = 0
 
@@ -423,4 +453,6 @@ func (b BoardStruct) PrintBoard() {
 
 	// print castling rights
 	fmt.Printf(" Castling:  %s\n\n", b.Castlings.String())
+
+	fmt.Printf(" HashKey: 0x%X\n\n", b.Key)
 }
