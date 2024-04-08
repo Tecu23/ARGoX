@@ -283,6 +283,8 @@ func Uci(input chan string) {
 			board.PrintBoard()
 		case "eval":
 			fmt.Printf("Score: %d\n", board.EvaluatePosition())
+		case "key":
+			fmt.Printf("Current Position key: %X\n", board.generateHashKey())
 		default:
 			fmt.Printf("unknown cmd %v", cmd)
 		}

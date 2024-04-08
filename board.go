@@ -111,6 +111,7 @@ func (b *BoardStruct) SetSq(piece, sq int) {
 		for p := WP; p <= BK; p++ {
 			if b.Bitboards[p].Test(sq) {
 				b.Bitboards[p].Clear(sq)
+				b.Key ^= PieceKeys[p][sq]
 			}
 		}
 
@@ -122,7 +123,7 @@ func (b *BoardStruct) SetSq(piece, sq int) {
 	if piece == Empty {
 		return
 	}
-
+	b.Key ^= PieceKeys[piece][sq]
 	b.Bitboards[piece].Set(sq)
 
 	if pieceColor == WHITE {
@@ -245,6 +246,9 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		ep := m.GetEnpassant()
 		cast := m.GetCastling()
 
+		if b.EnPassant != -1 {
+			b.Key ^= EnpassantKeys[b.EnPassant]
+		}
 		b.EnPassant = -1
 
 		if ep != 0 {
@@ -258,6 +262,7 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 			b.SetSq(pc, tgt)
 
 			b.SideToMove = b.SideToMove.Opp()
+			b.Key ^= SideKey
 			// make sure the king was not exposed into a check
 			var kingPos int
 
@@ -312,8 +317,10 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		if dblPwn != 0 {
 			if color == WHITE {
 				b.EnPassant = src + N
+				b.Key ^= EnpassantKeys[src+N]
 			} else {
 				b.EnPassant = src + S
+				b.Key ^= EnpassantKeys[src+S]
 			}
 		}
 
@@ -325,12 +332,17 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 			b.SetSq(pc, tgt)
 		}
 
+		b.Key ^= CastlingKeys[b.Castlings]
+
 		// update castling rights
 		b.Castlings &= Castlings(CastlingRights[src])
 		b.Castlings &= Castlings(CastlingRights[tgt])
 
-		// change size
+		b.Key ^= CastlingKeys[b.Castlings]
+
+		// change side
 		b.SideToMove = b.SideToMove.Opp()
+		b.Key ^= SideKey
 
 		// make sure the king was not exposed into a check
 		var kingPos int

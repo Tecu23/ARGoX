@@ -20,7 +20,7 @@ func main() {
 		board := BoardStruct{}
 
 		ParseFEN(&board, TrickyPosition)
-		board.PrintBoard()
+		perftTest(&board, 6)
 
 	} else {
 		fmt.Println("Starting ARGoX")
