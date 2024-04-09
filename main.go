@@ -20,6 +20,7 @@ func main() {
 		board := BoardStruct{}
 		ParseFEN(&board, StartPosition)
 		board.SearchPosition(10)
+		// TransTable.PrintAll()
 
 		board.MakeMove(PvTable[0][0], AllMoves)
 

@@ -9,7 +9,6 @@ import (
 var Ply int
 
 // TODO: Figure out why there are more nodes than it should (1241 vs 1067)
-// TODO: Figure out why there are so many more nodes being searched
 var nodes int64
 
 const (
@@ -119,7 +118,7 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 		}
 	}
 	nodes++
-	if Ply < MaxPly-1 {
+	if Ply > MaxPly-1 {
 		return b.EvaluatePosition()
 	}
 

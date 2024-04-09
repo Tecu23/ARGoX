@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // HashSize is the size of the tt
 const HashSize = 0x400000
 
@@ -63,4 +65,10 @@ func (t *tt) WriteEntry(score, depth, hashFlag int, key uint64) {
 	hashEntry.Score = score
 	hashEntry.Flags = hashFlag
 	hashEntry.Depth = depth
+}
+
+func (t *tt) PrintAll() {
+	for _, v := range *t {
+		fmt.Printf("%x, Sc:%d, Depth:%d, F:%d\n", v.Key, v.Score, v.Depth, v.Flags)
+	}
 }
