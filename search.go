@@ -117,6 +117,16 @@ func (b *BoardStruct) ListScoreMoves(mvlist Movelist) {
 	}
 }
 
+func (b *BoardStruct) isRepetition() bool {
+	for i := 0; i < b.RepetitionIdx; i++ {
+		if b.RepetitionTable[i] == b.Key {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (b *BoardStruct) quiescence(alpha, beta int) int {
 	if nodes&2047 == 0 {
 		// stop the search if the time passed
@@ -125,6 +135,11 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 		}
 	}
 	nodes++
+
+	// if Ply > 0 && b.isRepetition() {
+	// 	return 0
+	// }
+
 	if Ply > MaxPly-1 {
 		return b.EvaluatePosition()
 	}
@@ -146,13 +161,18 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 		copyB := b.CopyBoard()
 		Ply++
 
+		b.RepetitionIdx++
+		b.RepetitionTable[b.RepetitionIdx] = b.Key
+
 		if !b.MakeMove(m, OnlyCaptures) {
 			Ply--
+			b.RepetitionIdx--
 			continue
 		}
 		score := -b.quiescence(-beta, -alpha) // score current move
 
 		Ply--
+		b.RepetitionIdx--
 		b.TakeBack(copyB)
 
 		if limits.Stop {
@@ -174,12 +194,13 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	score := 0
-
 	hashFlag := HashfAlpha
 
-	// hack to figure out wether the curr node is PV or not
-	pvNode := beta-alpha > 1
+	if Ply > 0 && b.isRepetition() {
+		return 0
+	}
 
+	pvNode := beta-alpha > 1 // hack to figure out wether the curr node is PV or not
 	// read hash entry and if the move has already been searched => return the score
 	score = TransTable.ReadEntry(alpha, beta, depth, b.Key)
 	if Ply > 0 && score != NoHashEntry && !pvNode {
@@ -225,6 +246,9 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 	if depth >= 3 && !inCheck && Ply != 0 {
 		copyBoard := b.CopyBoard()
 		Ply++
+		b.RepetitionIdx++
+		b.RepetitionTable[b.RepetitionIdx] = b.Key
+
 		if b.EnPassant != -1 {
 			b.Key ^= EnpassantKeys[b.EnPassant]
 		}
@@ -236,6 +260,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		sc := -b.negamax(-beta, -beta+1, depth-1-2) // depth - 1 -R where R is reduction limit
 
 		Ply--
+		b.RepetitionIdx--
 		b.TakeBack(copyBoard)
 
 		if limits.Stop {
@@ -262,8 +287,12 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		copyB := b.CopyBoard()
 		Ply++
 
+		b.RepetitionIdx++
+		b.RepetitionTable[b.RepetitionIdx] = b.Key
+
 		if !b.MakeMove(m, AllMoves) {
 			Ply--
+			b.RepetitionIdx--
 			continue
 		}
 		legalMoves++
@@ -290,6 +319,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		}
 
 		Ply--
+		b.RepetitionIdx--
 		b.TakeBack(copyB)
 		if limits.Stop {
 			return 0

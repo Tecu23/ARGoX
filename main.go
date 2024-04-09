@@ -18,12 +18,10 @@ func main() {
 
 	if *debug {
 		board := BoardStruct{}
-		ParseFEN(&board, StartPosition)
+		ParseFEN(&board, RepetitionsPosition)
+
 		board.SearchPosition(10)
-		// TransTable.PrintAll()
-
 		board.MakeMove(PvTable[0][0], AllMoves)
-
 		board.SearchPosition(10)
 
 	} else {

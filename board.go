@@ -70,12 +70,18 @@ type BoardStruct struct {
 	Castlings
 
 	Key uint64
+
+	// positions repetition table & index
+	RepetitionTable [150]uint64
+	RepetitionIdx   int
 }
 
 // Clear should clear the board, flags, bitboards etc
 func (b *BoardStruct) Clear() {
 	b.SideToMove = WHITE
 	// b.Rule50 = 0
+	b.RepetitionTable = [150]uint64{}
+	b.RepetitionIdx = 1
 	b.Key = 0
 	b.EnPassant = -1
 	b.Castlings = 0
