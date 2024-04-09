@@ -19,10 +19,7 @@ func main() {
 	if *debug {
 		board := BoardStruct{}
 		ParseFEN(&board, RepetitionsPosition)
-
-		board.SearchPosition(10)
-		board.MakeMove(PvTable[0][0], AllMoves)
-		board.SearchPosition(10)
+		board.PrintBoard()
 
 	} else {
 		fmt.Println("Starting ARGoX")
@@ -47,4 +44,6 @@ func initHelpers() {
 	InitRandomHashKeys()
 
 	TransTable.Clear()
+
+	InitEvaluationMasks()
 }
