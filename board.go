@@ -72,7 +72,7 @@ type BoardStruct struct {
 	Key uint64
 
 	// positions repetition table & index
-	RepetitionTable [150]uint64
+	RepetitionTable [1000]uint64 // 1000 is a number of plies (500 moves) in the entire game
 	RepetitionIdx   int
 }
 
@@ -80,8 +80,8 @@ type BoardStruct struct {
 func (b *BoardStruct) Clear() {
 	b.SideToMove = WHITE
 	// b.Rule50 = 0
-	b.RepetitionTable = [150]uint64{}
-	b.RepetitionIdx = 1
+	b.RepetitionTable = [1000]uint64{}
+	b.RepetitionIdx = 0
 	b.Key = 0
 	b.EnPassant = -1
 	b.Castlings = 0

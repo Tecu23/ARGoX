@@ -67,6 +67,9 @@ func (b *BoardStruct) ParseMoves(cmd string) error {
 		if !b.MakeMove(m, AllMoves) {
 			return fmt.Errorf("%v is not a valid move", mv)
 		}
+
+		b.RepetitionIdx++
+		b.RepetitionTable[b.RepetitionIdx] = b.Key
 	}
 
 	return nil
