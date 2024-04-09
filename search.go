@@ -8,12 +8,19 @@ import (
 // Ply is the half move counter
 var Ply int
 
-// TODO: Figure out why there are more nodes than it should (1241 vs 1067)
 var nodes int64
 
+// LMR constants
 const (
 	FullDepthMoves = 4
 	ReductionLimit = 3
+)
+
+// Score bounds for the range of the mating scores
+const (
+	Infinity  = 50000
+	MateValue = 49000
+	MateScore = 48000
 )
 
 func (b *BoardStruct) enablePvScoring(mvlist Movelist) {
@@ -170,9 +177,12 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	hashFlag := HashfAlpha
 
+	// hack to figure out wether the curr node is PV or not
+	pvNode := beta-alpha > 1
+
 	// read hash entry and if the move has already been searched => return the score
 	score = TransTable.ReadEntry(alpha, beta, depth, b.Key)
-	if Ply > 0 && score != NoHashEntry {
+	if Ply > 0 && score != NoHashEntry && !pvNode {
 		return score
 	}
 
@@ -315,7 +325,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	if legalMoves == 0 {
 		if inCheck {
-			return -49000 + Ply
+			return -MateValue + Ply
 		}
 		return 0 // if not check then stalemate
 	}
@@ -342,8 +352,8 @@ func (b *BoardStruct) SearchPosition(depth int) Move {
 
 	score := 0
 
-	alpha := -50000
-	beta := 50000
+	alpha := -Infinity
+	beta := Infinity
 
 	for currDepth := 1; currDepth <= depth; currDepth++ {
 		FollowPv = true // enable FollowPv
@@ -356,15 +366,26 @@ func (b *BoardStruct) SearchPosition(depth int) Move {
 		score = b.negamax(alpha, beta, currDepth)
 
 		if score <= alpha || score >= beta {
-			alpha = -50000
-			beta = 50000
+			alpha = -Infinity
+			beta = Infinity
 			continue
 		}
 
 		alpha = score - 50
 		beta = score + 50
 
-		fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
+		if score > -MateScore && score < -MateScore {
+			fmt.Printf(
+				"info score mate %d depth %d nodes %d pv ",
+				-(score+MateValue)/2-1,
+				currDepth,
+				nodes,
+			)
+		} else if score > MateScore && score < MateValue {
+			fmt.Printf("info score mate %d depth %d nodes %d pv ", (MateValue-score)/2+1, currDepth, nodes)
+		} else {
+			fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
+		}
 
 		for i := 0; i < PvLength[0]; i++ {
 			fmt.Printf("%s ", PvTable[0][i])

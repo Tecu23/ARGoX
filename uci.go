@@ -257,6 +257,7 @@ func Uci(input chan string) {
 			TransTable.Clear()
 		case "position":
 			board.ParsePosition(cmd)
+			TransTable.Clear()
 		case "debug":
 			fmt.Printf("debug command not implemented yet\n")
 		case "register":

@@ -42,15 +42,26 @@ func (t *tt) ReadEntry(alpha, beta, depth int, key uint64) int {
 
 	if hashEntry.Key == key {
 		if hashEntry.Depth >= depth {
-			if hashEntry.Flags == HashfExact {
-				return hashEntry.Score
+			score := hashEntry.Score
+
+			// extract score independent from the actual path from root to curr position
+			if score < -MateScore {
+				score += Ply
 			}
 
-			if hashEntry.Flags == HashfAlpha && hashEntry.Score <= alpha {
+			if score > MateScore {
+				score -= Ply
+			}
+
+			if hashEntry.Flags == HashfExact {
+				return score
+			}
+
+			if hashEntry.Flags == HashfAlpha && score <= alpha {
 				return alpha
 			}
 
-			if hashEntry.Flags == HashfBeta && hashEntry.Score >= beta {
+			if hashEntry.Flags == HashfBeta && score >= beta {
 				return beta
 			}
 		}
@@ -60,6 +71,15 @@ func (t *tt) ReadEntry(alpha, beta, depth int, key uint64) int {
 
 func (t *tt) WriteEntry(score, depth, hashFlag int, key uint64) {
 	hashEntry := &(*t)[key%HashSize]
+
+	// store score independent from the actual path from root to curr position
+	if score < -MateScore {
+		score -= Ply
+	}
+
+	if score > MateScore {
+		score += Ply
+	}
 
 	hashEntry.Key = key
 	hashEntry.Score = score
