@@ -88,18 +88,16 @@ func InitEvaluationMasks() {
 
 // EvaluatePosition should evaluate a certain position
 func (b *BoardStruct) EvaluatePosition() int {
-	score := 0
-
 	bb := Bitboard(0)
-
+	score := 0
 	pc, sq := 0, 0
+	doublePawns := 0
 
 	for bbPc := WP; bbPc <= BK; bbPc++ {
 		bb = b.Bitboards[bbPc]
 
 		for bb != 0 {
 			pc = bbPc
-
 			sq = bb.FirstOne()
 
 			score += MaterialScore[pc]
@@ -108,6 +106,20 @@ func (b *BoardStruct) EvaluatePosition() int {
 			// evaluare white pieces
 			case WP:
 				score += PawnScore[sq]
+
+				doublePawns = (b.Bitboards[WP] & FileMasks[sq]).Count()
+				if doublePawns > 1 {
+					score += doublePawns * DoublePawnPenalty
+				}
+
+				if (b.Bitboards[WP] & IsolatedMasks[sq]) == 0 {
+					score += IsolatedPawnPenalty
+				}
+
+				if (WhitePassedMasks[sq] & b.Bitboards[BP]) == 0 {
+					score += PassedPawnBonus[GetRank[sq]]
+				}
+
 			case WN:
 				score += KnightScore[sq]
 			case WB:
@@ -120,6 +132,19 @@ func (b *BoardStruct) EvaluatePosition() int {
 			// evaluate black pieces
 			case BP:
 				score -= PawnScore[MirrorScore[sq]]
+
+				doublePawns = (b.Bitboards[BP] & FileMasks[sq]).Count()
+				if doublePawns > 1 {
+					score -= doublePawns * DoublePawnPenalty
+				}
+
+				if (b.Bitboards[BP] & IsolatedMasks[sq]) == 0 {
+					score -= IsolatedPawnPenalty
+				}
+
+				if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
+					score -= PassedPawnBonus[GetRank[sq]]
+				}
 			case BN:
 				score -= KnightScore[MirrorScore[sq]]
 			case BB:
@@ -138,3 +163,24 @@ func (b *BoardStruct) EvaluatePosition() int {
 
 	return -score
 }
+
+// GetRank should extract rank from a square [square]
+var GetRank = [64]int{
+	7, 7, 7, 7, 7, 7, 7, 7,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	4, 4, 4, 4, 4, 4, 4, 4,
+	3, 3, 3, 3, 3, 3, 3, 3,
+	2, 2, 2, 2, 2, 2, 2, 2,
+	1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 0, 0, 0, 0, 0, 0,
+}
+
+// Penalties for pawn positions
+const (
+	DoublePawnPenalty   = -10
+	IsolatedPawnPenalty = -10
+)
+
+// PassedPawnBonus is the bonus foe each rank passed
+var PassedPawnBonus = [8]int{0, 10, 30, 50, 75, 100, 150, 200}
