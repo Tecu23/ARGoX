@@ -1,5 +1,5 @@
 # ARGoX
 
 TODO: Refactoring
-TODO: Test Mate Scores -> Queen, Rook, Pawn
 TODO: Test 3-fold repetitions
+TODO: Prepare for version 1.0 release

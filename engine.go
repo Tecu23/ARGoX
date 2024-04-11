@@ -25,7 +25,9 @@ func root(toEng chan bool, frEng chan string, b *BoardStruct) {
 			limits.Timeset = true
 
 			limits.Time /= limits.MovesToGo
-			limits.Time -= 50
+			if limits.Time > 1500 {
+				limits.Time -= 50
+			}
 			limits.StopTime = limits.StartTime + int64(limits.Time) + int64(limits.Inc)
 		}
 

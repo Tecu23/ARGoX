@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 // HashSize is the size of the tt
-const HashSize = 0x400000
+const HashSize = 800000
 
 // NoHashEntry => no hash entry was found
 const NoHashEntry = 100000
