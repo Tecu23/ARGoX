@@ -18,8 +18,10 @@ func main() {
 
 	if *debug {
 		board := BoardStruct{}
-		ParseFEN(&board, RepetitionsPosition)
+		ParseFEN(&board, "8/p6p/p6p/8/8/P7/PPP5/8 w - - ")
 		board.PrintBoard()
+		score := board.EvaluatePosition()
+		fmt.Printf("Score:%d\n", score)
 
 	} else {
 		fmt.Println("Starting ARGoX")

@@ -124,10 +124,32 @@ func (b *BoardStruct) EvaluatePosition() int {
 				score += KnightScore[sq]
 			case WB:
 				score += BishopScore[sq]
+
+				score += getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WR:
 				score += RookScore[sq]
+
+				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
+					score += SemiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					score += OpenFileScore
+				}
+			case WQ:
+				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WK:
 				score += KingScore[sq]
+
+				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
+					score -= SemiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					score -= OpenFileScore
+				}
+
+				score += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * KingShieldBonus
 
 			// evaluate black pieces
 			case BP:
@@ -143,16 +165,39 @@ func (b *BoardStruct) EvaluatePosition() int {
 				}
 
 				if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
-					score -= PassedPawnBonus[GetRank[sq]]
+					score -= PassedPawnBonus[GetRank[MirrorScore[sq]]]
 				}
 			case BN:
 				score -= KnightScore[MirrorScore[sq]]
 			case BB:
 				score -= BishopScore[MirrorScore[sq]]
+
+				score -= getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case BR:
 				score -= RookScore[MirrorScore[sq]]
+
+				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
+					score -= SemiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					score -= OpenFileScore
+				}
+			case BQ:
+				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+
 			case BK:
 				score -= KingScore[MirrorScore[sq]]
+
+				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
+					score += SemiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					score += OpenFileScore
+				}
+
+				score -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * KingShieldBonus
 			}
 		}
 	}
@@ -184,3 +229,10 @@ const (
 
 // PassedPawnBonus is the bonus foe each rank passed
 var PassedPawnBonus = [8]int{0, 10, 30, 50, 75, 100, 150, 200}
+
+// Open and semi open file scores
+const (
+	OpenFileScore     = 15
+	SemiOpenFileScore = 10
+	KingShieldBonus   = 5
+)
