@@ -15,6 +15,77 @@ package main
 
       a b c d e f g h       a b c d e f g h       a b c d e f g h        a b c d e f g h
 */
+// PawnScore keeps the pawn positional score
+var pawnScore = [64]int{
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, -10, -10, 0, 0, 0,
+	0, 0, 0, 5, 5, 0, 0, 0,
+	5, 5, 10, 20, 20, 5, 5, 5,
+	10, 10, 10, 20, 20, 10, 10, 10,
+	20, 20, 20, 30, 30, 30, 20, 20,
+	30, 30, 30, 40, 40, 30, 30, 30,
+	90, 90, 90, 90, 90, 90, 90, 90,
+}
+
+// KnightScore keeps the knight positional score
+var knightScore = [64]int{
+	-5, -10, 0, 0, 0, 0, -10, -5,
+	-5, 0, 0, 0, 0, 0, 0, -5,
+	-5, 5, 20, 10, 10, 20, 5, -5,
+	-5, 10, 20, 30, 30, 20, 10, -5,
+	-5, 10, 20, 30, 30, 20, 10, -5,
+	-5, 5, 20, 20, 20, 20, 5, -5,
+	-5, 0, 0, 10, 10, 0, 0, -5,
+	-5, 0, 0, 0, 0, 0, 0, -5,
+}
+
+// BishopScore keeps the bishop positional score
+var bishopScore = [64]int{
+	0, 0, -10, 0, 0, -10, 0, 0,
+	0, 30, 0, 0, 0, 0, 30, 0,
+	0, 10, 0, 0, 0, 0, 10, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 0, 10, 10, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+}
+
+// RookScore keeps the rook positional score
+var rookScore = [64]int{
+	0, 0, 0, 20, 20, 0, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	0, 0, 10, 20, 20, 10, 0, 0,
+	50, 50, 50, 50, 50, 50, 50, 50,
+	50, 50, 50, 50, 50, 50, 50, 50,
+}
+
+// KingScore keeps the king positional score
+var kingScore = [64]int{
+	0, 0, 5, 0, -15, 0, 10, 0,
+	0, 5, 5, -5, -5, 0, 5, 0,
+	0, 0, 5, 10, 10, 5, 0, 0,
+	0, 5, 10, 20, 20, 10, 5, 0,
+	0, 5, 10, 20, 20, 10, 5, 0,
+	0, 5, 5, 10, 10, 5, 5, 0,
+	0, 0, 5, 5, 5, 5, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+}
+
+// MirrorScore keeps the mirror positional score tables for opposite side
+var mirrorScore = [128]int{
+	A8, B8, C8, D8, E8, F8, G8, H8,
+	A7, B7, C7, D7, E7, F7, G7, H7,
+	A6, B6, C6, D6, E6, F6, G6, H6,
+	A5, B5, C5, D5, E5, F5, G5, H5,
+	A4, B4, C4, D4, E4, F4, G4, H4,
+	A3, B3, C3, D3, E3, F3, G3, H3,
+	A2, B2, C2, D2, E2, F2, G2, H2,
+	A1, B1, C1, D1, E1, F1, G1, H1,
+}
 
 // Evaluation Masks
 var (
@@ -25,13 +96,36 @@ var (
 	BlackPassedMasks [64]Bitboard
 )
 
+// GetRank should extract rank from a square [square]
+var getRank = [64]int{
+	7, 7, 7, 7, 7, 7, 7, 7,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	4, 4, 4, 4, 4, 4, 4, 4,
+	3, 3, 3, 3, 3, 3, 3, 3,
+	2, 2, 2, 2, 2, 2, 2, 2,
+	1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 0, 0, 0, 0, 0, 0,
+}
+
+// PassedPawnBonus is the bonus foe each rank passed
+var passedPawnBonus = [8]int{0, 10, 30, 50, 75, 100, 150, 200}
+
+const (
+	// Penalties for pawn positions
+	doublePawnPenalty   = -10
+	isolatedPawnPenalty = -10
+	// Open and semi open file scores
+	openFileScore     = 15
+	semiOpenFileScore = 10
+	kingShieldBonus   = 5
+)
+
 func setFileRankMask(fileNum, rankNum int) Bitboard {
 	mask := Bitboard(0)
-
 	for r := 0; r < 8; r++ {
 		for f := 0; f < 8; f++ {
 			sq := r*8 + f
-
 			if fileNum != -1 {
 				if f == fileNum {
 					mask.Set(sq)
@@ -43,10 +137,8 @@ func setFileRankMask(fileNum, rankNum int) Bitboard {
 					mask |= mask
 				}
 			}
-
 		}
 	}
-
 	return mask
 }
 
@@ -63,7 +155,6 @@ func InitEvaluationMasks() {
 			IsolatedMasks[sq] |= setFileRankMask(f+1, -1)
 		}
 	}
-
 	for r := 0; r < 8; r++ {
 		for f := 0; f < 8; f++ {
 			sq := r*8 + f
@@ -105,134 +196,104 @@ func (b *BoardStruct) EvaluatePosition() int {
 			switch pc {
 			// evaluare white pieces
 			case WP:
-				score += PawnScore[sq]
+				score += pawnScore[sq]
 
 				doublePawns = (b.Bitboards[WP] & FileMasks[sq]).Count()
 				if doublePawns > 1 {
-					score += doublePawns * DoublePawnPenalty
+					score += doublePawns * doublePawnPenalty
 				}
 
 				if (b.Bitboards[WP] & IsolatedMasks[sq]) == 0 {
-					score += IsolatedPawnPenalty
+					score += isolatedPawnPenalty
 				}
 
 				if (WhitePassedMasks[sq] & b.Bitboards[BP]) == 0 {
-					score += PassedPawnBonus[GetRank[sq]]
+					score += passedPawnBonus[getRank[sq]]
 				}
 
 			case WN:
-				score += KnightScore[sq]
+				score += knightScore[sq]
 			case WB:
-				score += BishopScore[sq]
+				score += bishopScore[sq]
 
 				score += getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WR:
-				score += RookScore[sq]
+				score += rookScore[sq]
 
 				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
-					score += SemiOpenFileScore
+					score += semiOpenFileScore
 				}
 
 				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-					score += OpenFileScore
+					score += openFileScore
 				}
 			case WQ:
 				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WK:
-				score += KingScore[sq]
+				score += kingScore[sq]
 
 				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
-					score -= SemiOpenFileScore
+					score -= semiOpenFileScore
 				}
 
 				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-					score -= OpenFileScore
+					score -= openFileScore
 				}
 
-				score += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * KingShieldBonus
+				score += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * kingShieldBonus
 
 			// evaluate black pieces
 			case BP:
-				score -= PawnScore[MirrorScore[sq]]
+				score -= pawnScore[mirrorScore[sq]]
 
 				doublePawns = (b.Bitboards[BP] & FileMasks[sq]).Count()
 				if doublePawns > 1 {
-					score -= doublePawns * DoublePawnPenalty
+					score -= doublePawns * doublePawnPenalty
 				}
 
 				if (b.Bitboards[BP] & IsolatedMasks[sq]) == 0 {
-					score -= IsolatedPawnPenalty
+					score -= isolatedPawnPenalty
 				}
 
 				if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
-					score -= PassedPawnBonus[GetRank[MirrorScore[sq]]]
+					score -= passedPawnBonus[getRank[mirrorScore[sq]]]
 				}
 			case BN:
-				score -= KnightScore[MirrorScore[sq]]
+				score -= knightScore[mirrorScore[sq]]
 			case BB:
-				score -= BishopScore[MirrorScore[sq]]
+				score -= bishopScore[mirrorScore[sq]]
 
 				score -= getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case BR:
-				score -= RookScore[MirrorScore[sq]]
+				score -= rookScore[mirrorScore[sq]]
 
 				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
-					score -= SemiOpenFileScore
+					score -= semiOpenFileScore
 				}
 
 				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-					score -= OpenFileScore
+					score -= openFileScore
 				}
 			case BQ:
 				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 
 			case BK:
-				score -= KingScore[MirrorScore[sq]]
+				score -= kingScore[mirrorScore[sq]]
 
 				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
-					score += SemiOpenFileScore
+					score += semiOpenFileScore
 				}
 
 				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-					score += OpenFileScore
+					score += openFileScore
 				}
 
-				score -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * KingShieldBonus
+				score -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * kingShieldBonus
 			}
 		}
 	}
-
 	if b.SideToMove == WHITE {
 		return score
 	}
-
 	return -score
 }
-
-// GetRank should extract rank from a square [square]
-var GetRank = [64]int{
-	7, 7, 7, 7, 7, 7, 7, 7,
-	6, 6, 6, 6, 6, 6, 6, 6,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	4, 4, 4, 4, 4, 4, 4, 4,
-	3, 3, 3, 3, 3, 3, 3, 3,
-	2, 2, 2, 2, 2, 2, 2, 2,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 0, 0, 0, 0, 0, 0,
-}
-
-// Penalties for pawn positions
-const (
-	DoublePawnPenalty   = -10
-	IsolatedPawnPenalty = -10
-)
-
-// PassedPawnBonus is the bonus foe each rank passed
-var PassedPawnBonus = [8]int{0, 10, 30, 50, 75, 100, 150, 200}
-
-// Open and semi open file scores
-const (
-	OpenFileScore     = 15
-	SemiOpenFileScore = 10
-	KingShieldBonus   = 5
-)
