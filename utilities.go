@@ -46,7 +46,7 @@ func ParseFEN(Board *BoardStruct, FEN string) {
 			}
 
 			// if we find an invalid piece we skip
-			if strings.IndexAny(PcFen, char) == -1 {
+			if !strings.Contains(PcFen, char) {
 				fmt.Printf("Invalid piece %s try next one", char)
 				// log.Errorf("error string invalid piece %s try next one", char)
 				continue

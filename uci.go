@@ -298,8 +298,7 @@ func Uci(input chan string) {
 
 func input() chan string {
 	line := make(chan string)
-	var reader *bufio.Reader
-	reader = bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 
 	go func() {
 		for {

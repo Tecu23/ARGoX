@@ -80,26 +80,18 @@ func ParseCastlings(fenCastl string) Castlings {
 		return Castlings(0)
 	}
 
-	if strings.Index(fenCastl, "K") >= 0 {
+	if strings.Contains(fenCastl, "K") {
 		c |= ShortW
 	}
-	if strings.Index(fenCastl, "Q") >= 0 {
+	if strings.Contains(fenCastl, "Q") {
 		c |= LongW
 	}
-	if strings.Index(fenCastl, "k") >= 0 {
+	if strings.Contains(fenCastl, "k") {
 		c |= ShortB
 	}
-	if strings.Index(fenCastl, "q") >= 0 {
+	if strings.Contains(fenCastl, "q") {
 		c |= LongB
 	}
 
 	return Castlings(c)
-}
-
-func (c *Castlings) On(val uint) {
-	(*c) |= Castlings(val)
-}
-
-func (c *Castlings) Off(val uint) {
-	(*c) &= Castlings(^val)
 }

@@ -59,13 +59,10 @@ func generateRandomUint64Number(randomState *uint32) uint64 {
 }
 
 func generateMagicNumber(randomState *uint32) uint64 {
-	return generateRandomUint64Number(
-		randomState,
-	) & generateRandomUint64Number(
-		randomState,
-	) & generateRandomUint64Number(
-		randomState,
-	)
+	firstNum := generateRandomUint64Number(randomState)
+	secondNum := generateRandomUint64Number(randomState)
+	thirdNum := generateRandomUint64Number(randomState)
+	return firstNum & secondNum & thirdNum
 }
 
 func findMagicNumbers(square, relevantBits int, piece int) Bitboard {

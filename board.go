@@ -97,8 +97,7 @@ func (b *BoardStruct) Clear() {
 
 // CopyBoard should take a copy of the current board position
 func (b BoardStruct) CopyBoard() BoardStruct {
-	boardCopy := BoardStruct{}
-	boardCopy = b
+	boardCopy := b
 
 	return boardCopy
 }

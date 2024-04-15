@@ -48,7 +48,7 @@ func (b *Bitboard) LastOne() int {
 	return 63 - bit
 }
 
-// returns the full bitstring (with leading zeroes) of the bitBoard
+// String returns the full bitstring (with leading zeroes) of the bitBoard
 func (b Bitboard) String() string {
 	zeroes := ""
 	for i := 0; i < 64; i++ {
