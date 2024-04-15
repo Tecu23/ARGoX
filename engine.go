@@ -4,7 +4,8 @@ import (
 	"fmt"
 )
 
-func engine(b *BoardStruct) (toEngine chan bool, frEngine chan string) {
+// Engine represents the engine function
+func Engine(b *BoardStruct) (toEngine chan bool, frEngine chan string) {
 	frEngine = make(chan string)
 	toEngine = make(chan bool)
 	go root(toEngine, frEngine, b)
@@ -14,39 +15,38 @@ func engine(b *BoardStruct) (toEngine chan bool, frEngine chan string) {
 
 func root(toEng chan bool, frEng chan string, b *BoardStruct) {
 	for range toEng {
-		if limits.MoveTime != -1 { // if move time is not available
-			limits.Time = limits.MoveTime
-			limits.MovesToGo = 1
+		if Limits.MoveTime != -1 { // if move time is not available
+			Limits.Time = Limits.MoveTime
+			Limits.MovesToGo = 1
 		}
 
-		limits.StartTime = GetTimeInMiliseconds()
+		Limits.StartTime = GetTimeInMiliseconds()
 
-		if limits.Time != -1 { // if time control is available
-			limits.Timeset = true
+		if Limits.Time != -1 { // if time control is available
+			Limits.Timeset = true
 
-			limits.Time /= limits.MovesToGo
-			if limits.Time > 1500 {
-				limits.Time -= 50
+			Limits.Time /= Limits.MovesToGo
+			if Limits.Time > 1500 {
+				Limits.Time -= 50
 			}
-			limits.StopTime = limits.StartTime + int64(limits.Time) + int64(limits.Inc)
+			Limits.StopTime = Limits.StartTime + int64(Limits.Time) + int64(Limits.Inc)
 		}
 
 		// if depth not available use 64 as default
-		if limits.Depth == -1 {
-			limits.Depth = 64
+		if Limits.Depth == -1 {
+			Limits.Depth = 64
 		}
 
 		fmt.Printf(
 			"time:%d, start:%d, stop:%d, depth:%d timeset:%t stopped:%t\n",
-			limits.Time,
-			limits.StartTime,
-			limits.StopTime,
-			limits.Depth,
-			limits.Timeset,
-			limits.Stop,
+			Limits.Time,
+			Limits.StartTime,
+			Limits.StopTime,
+			Limits.Depth,
+			Limits.Timeset,
+			Limits.Stop,
 		)
-		fmt.Println("Calling search position for depth ", limits.Depth)
-		bm := b.SearchPosition(limits.Depth)
+		bm := b.SearchPosition(Limits.Depth)
 
 		frEng <- fmt.Sprintf("bestmove %s", bm)
 	}

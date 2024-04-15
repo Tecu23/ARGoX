@@ -332,7 +332,7 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 // ParseMove should parse user/GUI move string input (e.g. e7e8q)
 func (b *BoardStruct) ParseMove(moveString string) Move {
 	var moves Movelist
-	b.generateMoves(&moves)
+	b.GenerateMoves(&moves)
 
 	src := Fen2Sq[moveString[:2]]
 	tgt := Fen2Sq[moveString[2:4]]

@@ -130,8 +130,8 @@ func (b *BoardStruct) isRepetition() bool {
 func (b *BoardStruct) quiescence(alpha, beta int) int {
 	if nodes&2047 == 0 {
 		// stop the search if the time passed
-		if limits.Timeset && GetTimeInMiliseconds() > limits.StopTime {
-			limits.setStop(true)
+		if Limits.Timeset && GetTimeInMiliseconds() > Limits.StopTime {
+			Limits.SetStop(true)
 		}
 	}
 	nodes++
@@ -154,7 +154,7 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 	// generate moves
 	var moves Movelist
-	b.generateMoves(&moves)
+	b.GenerateMoves(&moves)
 	b.sortMoves(moves)
 
 	for _, m := range moves {
@@ -175,7 +175,7 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 		b.RepetitionIdx--
 		b.TakeBack(copyB)
 
-		if limits.Stop {
+		if Limits.Stop {
 			return 0
 		}
 
@@ -209,8 +209,8 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	if nodes&2047 == 0 {
 		// stop the search if the time passed
-		if limits.Timeset && GetTimeInMiliseconds() > limits.StopTime {
-			limits.setStop(true)
+		if Limits.Timeset && GetTimeInMiliseconds() > Limits.StopTime {
+			Limits.SetStop(true)
 		}
 	}
 
@@ -263,7 +263,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		b.RepetitionIdx--
 		b.TakeBack(copyBoard)
 
-		if limits.Stop {
+		if Limits.Stop {
 			return 0
 		}
 
@@ -274,7 +274,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 
 	// generate moves
 	var moves Movelist
-	b.generateMoves(&moves)
+	b.GenerateMoves(&moves)
 
 	if FollowPv {
 		b.enablePvScoring(moves) // enable PV move scoring
@@ -321,7 +321,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		Ply--
 		b.RepetitionIdx--
 		b.TakeBack(copyB)
-		if limits.Stop {
+		if Limits.Stop {
 			return 0
 		}
 		movesSearched++
@@ -369,7 +369,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 func (b *BoardStruct) SearchPosition(depth int) Move {
 	nodes = 0
 
-	limits.setStop(false)
+	Limits.SetStop(false)
 
 	// clear helper data structures for search
 	KillerMove = [2][64]Move{}
@@ -388,7 +388,7 @@ func (b *BoardStruct) SearchPosition(depth int) Move {
 	for currDepth := 1; currDepth <= depth; currDepth++ {
 		FollowPv = true // enable FollowPv
 
-		if limits.Stop {
+		if Limits.Stop {
 			break
 		}
 

@@ -77,7 +77,7 @@ func (b *BoardStruct) ParseMoves(cmd string) error {
 
 // ParseGo should parse the go command
 func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
-	limits.init()
+	Limits.Init()
 	cmd = strings.TrimSpace(strings.TrimPrefix(cmd, "go"))
 	words := strings.Split(cmd, " ")
 
@@ -101,7 +101,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 			}
 
 			if b.SideToMove == WHITE {
-				limits.Time = arg
+				Limits.Time = arg
 			}
 		case "btime":
 			arg, err := 0, error(nil)
@@ -115,7 +115,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 			}
 
 			if b.SideToMove == BLACK {
-				limits.Time = arg
+				Limits.Time = arg
 			}
 		case "winc":
 			arg, err := 0, error(nil)
@@ -129,7 +129,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 			}
 
 			if b.SideToMove == WHITE {
-				limits.Inc = arg
+				Limits.Inc = arg
 			}
 		case "binc":
 			arg, err := 0, error(nil)
@@ -143,7 +143,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 			}
 
 			if b.SideToMove == BLACK {
-				limits.Inc = arg
+				Limits.Inc = arg
 			}
 
 		case "movestogo":
@@ -157,7 +157,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 				return fmt.Errorf("time value not numeric")
 			}
 
-			limits.MovesToGo = arg
+			Limits.MovesToGo = arg
 		case "depth":
 			arg, err := -1, error(nil)
 
@@ -168,7 +168,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 			if arg < 0 || err != nil {
 				return fmt.Errorf("depth not numeric")
 			}
-			limits.setDepth(arg)
+			Limits.Depth = arg
 		case "nodes":
 			return fmt.Errorf("go nodes not implemented")
 		case "movetime":
@@ -182,7 +182,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 				return fmt.Errorf("depth not numeric")
 			}
 
-			limits.MoveTime = arg
+			Limits.MoveTime = arg
 		case "mate": // mate <x>  mate in x moves
 			return fmt.Errorf("go mate not implemented")
 		case "infinite":
@@ -200,7 +200,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 				return fmt.Errorf("depth not numeric")
 			}
 
-			perftTest(b, arg)
+			PerftTest(b, arg)
 			return nil
 		default:
 			continue
@@ -214,7 +214,7 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 }
 
 func handleBm(bm string) {
-	if limits.Infinite {
+	if Limits.Infinite {
 		if saveBm != NoMove {
 			// TODO: Handle this
 			// saveBm = bm
@@ -230,7 +230,7 @@ func Uci(input chan string) {
 	var cmd string
 	var bm string
 
-	toEng, frEng := engine(&board)
+	toEng, frEng := Engine(&board)
 
 	quit := false
 
@@ -270,14 +270,14 @@ func Uci(input chan string) {
 		case "ponderhit":
 			fmt.Printf("ponderhit command not implemented yet\n")
 		case "stop":
-			if limits.Infinite {
+			if Limits.Infinite {
 				if saveBm != NoMove {
-					fmt.Println(saveBm)
+					// fmt.Println(saveBm)
 					saveBm = NoMove
 				}
-				limits.setInfinite(false)
+				Limits.Infinite = false
 			}
-			limits.setStop(true)
+			Limits.SetStop(true)
 			continue
 		case "quit", "q":
 			quit = true

@@ -35,113 +35,6 @@ func InitMagic() {
 	fmt.Printf("};\n\n")
 }
 
-func generateRandomUint32Number(randomState *uint32) uint32 {
-	number := *randomState
-
-	number ^= (number << 13)
-	number ^= (number >> 17)
-	number ^= (number << 5)
-
-	*randomState = number
-
-	return number
-}
-
-func generateRandomUint64Number(randomState *uint32) uint64 {
-	var n1, n2, n3, n4 uint64
-
-	n1 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
-	n2 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
-	n3 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
-	n4 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
-
-	return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48)
-}
-
-func generateMagicNumber(randomState *uint32) uint64 {
-	firstNum := generateRandomUint64Number(randomState)
-	secondNum := generateRandomUint64Number(randomState)
-	thirdNum := generateRandomUint64Number(randomState)
-	return firstNum & secondNum & thirdNum
-}
-
-func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
-	// define occupancies array
-	occupancy := [4096]Bitboard{}
-
-	// define attacks array
-	attacks := [4096]Bitboard{}
-
-	// define used indices array
-	usedAttacks := [4096]Bitboard{}
-
-	var maskAttacks Bitboard
-	// mask piece attack
-	if piece == Bishop {
-		maskAttacks = GenerateBishopAttacks(square)
-	} else {
-		maskAttacks = GenerateRookAttacks(square)
-	}
-
-	// occupancy variations
-	occupancyVariations := 1 << relevantBits
-
-	// loop over the number of occupancy variations
-	for count := 0; count < occupancyVariations; count++ {
-		// init occupancies
-		occupancy[count] = SetOccupancy(count, relevantBits, maskAttacks)
-
-		// init attacks
-		if piece == Bishop {
-			attacks[count] = GenerateBishopAttacksOnTheFly(square, occupancy[count])
-		} else {
-			attacks[count] = GenerateRookAttacksOnTheFly(square, occupancy[count])
-		}
-	}
-	randomState := uint32(1804289383)
-
-	// test magic numbers
-	for randomCount := 0; randomCount < 100000000; randomCount++ {
-
-		// init magic number candidate
-		magic := Bitboard(generateMagicNumber(&randomState))
-
-		// skip testing magic number if innappropriate
-		if Bitboard((maskAttacks*magic)&0xFF00000000000000).Count() < 6 {
-			continue
-		}
-
-		// reset used attacks array
-		usedAttacks = [4096]Bitboard{}
-
-		// init count & fail flag
-		count, fail := 0, false
-
-		// test magic index
-		for count, fail = 0, false; !fail && count < occupancyVariations; count++ {
-			// generate magic index
-			magicIndex := int((occupancy[count] * magic) >> (64 - relevantBits))
-
-			// if got free index
-			if usedAttacks[magicIndex] == 0 {
-				// assign corresponding attack map
-				usedAttacks[magicIndex] = attacks[count]
-			} else if usedAttacks[magicIndex] != attacks[count] {
-				fail = true
-			}
-		}
-
-		// return magic if it works
-		if !fail {
-			return magic
-		}
-	}
-
-	// on fail
-	fmt.Printf("***Failed***\n")
-	return Bitboard(0)
-}
-
 // SetOccupancy should create an occupancy bitboard given an attack mask and a index
 func SetOccupancy(index, bitsInMask int, attackMask Bitboard) Bitboard {
 	// occupancy map
@@ -260,6 +153,114 @@ func FillOptimalMagicsR() {
 	RookMagicNumbers[G8] = 0x0003ffef27eebe74
 	RookRelevantBits[H8] = 11
 	RookMagicNumbers[H8] = 0x7645FFFECBFEA79E
+}
+
+// PRIVATE Methods
+func generateRandomUint32Number(randomState *uint32) uint32 {
+	number := *randomState
+
+	number ^= (number << 13)
+	number ^= (number >> 17)
+	number ^= (number << 5)
+
+	*randomState = number
+
+	return number
+}
+
+func generateRandomUint64Number(randomState *uint32) uint64 {
+	var n1, n2, n3, n4 uint64
+
+	n1 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n2 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n3 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+	n4 = uint64(generateRandomUint32Number(randomState)) & 0xFFFF
+
+	return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48)
+}
+
+func generateMagicNumber(randomState *uint32) uint64 {
+	firstNum := generateRandomUint64Number(randomState)
+	secondNum := generateRandomUint64Number(randomState)
+	thirdNum := generateRandomUint64Number(randomState)
+	return firstNum & secondNum & thirdNum
+}
+
+func findMagicNumbers(square, relevantBits int, piece int) Bitboard {
+	// define occupancies array
+	occupancy := [4096]Bitboard{}
+
+	// define attacks array
+	attacks := [4096]Bitboard{}
+
+	// define used indices array
+	usedAttacks := [4096]Bitboard{}
+
+	var maskAttacks Bitboard
+	// mask piece attack
+	if piece == Bishop {
+		maskAttacks = GenerateBishopAttacks(square)
+	} else {
+		maskAttacks = GenerateRookAttacks(square)
+	}
+
+	// occupancy variations
+	occupancyVariations := 1 << relevantBits
+
+	// loop over the number of occupancy variations
+	for count := 0; count < occupancyVariations; count++ {
+		// init occupancies
+		occupancy[count] = SetOccupancy(count, relevantBits, maskAttacks)
+
+		// init attacks
+		if piece == Bishop {
+			attacks[count] = GenerateBishopAttacksOnTheFly(square, occupancy[count])
+		} else {
+			attacks[count] = GenerateRookAttacksOnTheFly(square, occupancy[count])
+		}
+	}
+	randomState := uint32(1804289383)
+
+	// test magic numbers
+	for randomCount := 0; randomCount < 100000000; randomCount++ {
+
+		// init magic number candidate
+		magic := Bitboard(generateMagicNumber(&randomState))
+
+		// skip testing magic number if innappropriate
+		if Bitboard((maskAttacks*magic)&0xFF00000000000000).Count() < 6 {
+			continue
+		}
+
+		// reset used attacks array
+		usedAttacks = [4096]Bitboard{}
+
+		// init count & fail flag
+		count, fail := 0, false
+
+		// test magic index
+		for count, fail = 0, false; !fail && count < occupancyVariations; count++ {
+			// generate magic index
+			magicIndex := int((occupancy[count] * magic) >> (64 - relevantBits))
+
+			// if got free index
+			if usedAttacks[magicIndex] == 0 {
+				// assign corresponding attack map
+				usedAttacks[magicIndex] = attacks[count]
+			} else if usedAttacks[magicIndex] != attacks[count] {
+				fail = true
+			}
+		}
+
+		// return magic if it works
+		if !fail {
+			return magic
+		}
+	}
+
+	// on fail
+	fmt.Printf("***Failed***\n")
+	return Bitboard(0)
 }
 
 // BishopRelevantBits is the relevant occupancy bit count for every square on board

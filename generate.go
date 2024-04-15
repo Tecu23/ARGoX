@@ -3,13 +3,11 @@ package main
 // generate all moves
 // TODO: Split this method into captures/quiet moves for all pieces to debug more easily
 // TODO: Fix Issue where a black pawn could capture a black king ???????
-func (b *BoardStruct) generateMoves(movelist *Movelist) {
+func (b *BoardStruct) GenerateMoves(movelist *Movelist) {
 	sourceSq, targetSq := 0, 0
-
 	bitboard, attacks := Bitboard(0), Bitboard(0)
 
 	for piece := WP; piece <= BK; piece++ {
-
 		bitboard = b.Bitboards[piece]
 
 		// generate pawns and castling moves depending of size
@@ -70,7 +68,6 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 							)
 						}
 					}
-
 				}
 			}
 			// Castlings moves

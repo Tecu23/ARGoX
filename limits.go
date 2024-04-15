@@ -1,6 +1,7 @@
 package main
 
-var limits searchLimits
+// Limits are the limits and settings regarding the engine sent via the command
+var Limits searchLimits
 
 type searchLimits struct {
 	Depth int // depth of the search
@@ -21,7 +22,7 @@ type searchLimits struct {
 	Stop bool // flag to control when the time is up
 }
 
-func (s *searchLimits) init() {
+func (s *searchLimits) Init() {
 	s.Depth = -1
 	s.MovesToGo = 30
 	s.MoveTime = -1
@@ -30,22 +31,7 @@ func (s *searchLimits) init() {
 	s.Stop = false
 }
 
-func (s *searchLimits) setStop(st bool) {
-	s.Stop = st
-}
-
-func (s *searchLimits) setDepth(d int) {
-	s.Depth = d
-}
-
-func (s *searchLimits) setMoveTime(m int) {
-	s.MoveTime = m
-}
-
-func (s *searchLimits) setTime(m int) {
-	s.MoveTime = m
-}
-
-func (s *searchLimits) setInfinite(b bool) {
-	s.Infinite = b
+// SetStop sets the value of the stop flag
+func (s *searchLimits) SetStop(value bool) {
+	s.Stop = value
 }

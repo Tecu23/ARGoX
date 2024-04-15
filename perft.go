@@ -19,7 +19,7 @@ func perftDriver(b *BoardStruct, depth int) {
 	var mvlst Movelist
 
 	// generate moves
-	b.generateMoves(&mvlst)
+	b.GenerateMoves(&mvlst)
 
 	for _, mv := range mvlst {
 		copyB := b.CopyBoard()
@@ -35,12 +35,12 @@ func perftDriver(b *BoardStruct, depth int) {
 	}
 }
 
-func perftTest(b *BoardStruct, depth int) {
+func PerftTest(b *BoardStruct, depth int) {
 	var whiteMoves Movelist
 
 	totalMoves := int64(0)
 
-	b.generateMoves(&whiteMoves)
+	b.GenerateMoves(&whiteMoves)
 
 	fmt.Printf("\n  Performance test\n\n")
 	start := GetTimeInMiliseconds()
