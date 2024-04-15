@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-// TODO: Makefile
 // TODO: Make a helper function to print to STDIN
 // TODO: Fix optimal magic problem
 func main() {
@@ -38,14 +37,11 @@ func initHelpers() {
 	// FillOptimalMagicsB()
 	// FillOptimalMagicsR()
 
-	GenerateSliderPiecesAttacks(Bishop) // bishop
-	GenerateSliderPiecesAttacks(Rook)   // rook
+	InitSliderPiecesAttacks(Bishop) // bishop
+	InitSliderPiecesAttacks(Rook)   // rook
 
 	InitMaterialScore()
-
 	InitRandomHashKeys()
-
 	TransTable.Clear()
-
 	InitEvaluationMasks()
 }

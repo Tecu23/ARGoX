@@ -121,27 +121,6 @@ const (
 	kingShieldBonus   = 5
 )
 
-func setFileRankMask(fileNum, rankNum int) Bitboard {
-	mask := Bitboard(0)
-	for r := 0; r < 8; r++ {
-		for f := 0; f < 8; f++ {
-			sq := r*8 + f
-			if fileNum != -1 {
-				if f == fileNum {
-					mask.Set(sq)
-					mask |= mask
-				}
-			} else if rankNum != -1 {
-				if r == rankNum {
-					mask.Set(sq)
-					mask |= mask
-				}
-			}
-		}
-	}
-	return mask
-}
-
 // InitEvaluationMasks should initialize the evaluation masks
 func InitEvaluationMasks() {
 	for r := 0; r < 8; r++ {
@@ -216,7 +195,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 			case WB:
 				score += bishopScore[sq]
 
-				score += getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
+				score += GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WR:
 				score += rookScore[sq]
 
@@ -228,7 +207,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 					score += openFileScore
 				}
 			case WQ:
-				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+				score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WK:
 				score += kingScore[sq]
 
@@ -263,7 +242,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 			case BB:
 				score -= bishopScore[mirrorScore[sq]]
 
-				score -= getBishopAttacks(sq, b.Occupancies[BOTH]).Count()
+				score -= GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case BR:
 				score -= rookScore[mirrorScore[sq]]
 
@@ -275,7 +254,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 					score -= openFileScore
 				}
 			case BQ:
-				score += getQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+				score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 
 			case BK:
 				score -= kingScore[mirrorScore[sq]]
@@ -296,4 +275,27 @@ func (b *BoardStruct) EvaluatePosition() int {
 		return score
 	}
 	return -score
+}
+
+// PRIVATE Methods
+
+func setFileRankMask(fileNum, rankNum int) Bitboard {
+	mask := Bitboard(0)
+	for r := 0; r < 8; r++ {
+		for f := 0; f < 8; f++ {
+			sq := r*8 + f
+			if fileNum != -1 {
+				if f == fileNum {
+					mask.Set(sq)
+					mask |= mask
+				}
+			} else if rankNum != -1 {
+				if r == rankNum {
+					mask.Set(sq)
+					mask |= mask
+				}
+			}
+		}
+	}
+	return mask
 }

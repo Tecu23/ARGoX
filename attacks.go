@@ -15,51 +15,11 @@ func InitPawnAttacks() {
 	}
 }
 
-// generatePawnAttacks should generate all pawn attacks provided the square and color
-func generatePawnAttacks(square int, side Color) Bitboard {
-	attacks := Bitboard(0)
-
-	b := Bitboard(0)
-	b.Set(square)
-
-	if side == WHITE {
-		attacks |= (b & ^FileA) << NW
-		attacks |= (b & ^FileH) << NE
-	} else {
-		attacks |= (b & ^FileA) >> NE
-		attacks |= (b & ^FileH) >> NW
-	}
-
-	return attacks
-}
-
 // InitKnightAttacks should initialize the KinghtAttacks table
 func InitKnightAttacks() {
 	for sq := A1; sq <= H8; sq++ {
 		KnightAttacks[sq] = generateKnightAttacks(sq)
 	}
-}
-
-// generateKnightAttacks should generate all attacks for a knight in a certain position
-func generateKnightAttacks(square int) Bitboard {
-	attacks := Bitboard(0)
-
-	b := Bitboard(0)
-	b.Set(square)
-
-	attacks |= (b & ^FileA) << (NW + N)
-	attacks |= (b & ^FileA & ^FileB) << (NW + W)
-
-	attacks |= (b & ^FileA & ^FileB) >> (NE + E)
-	attacks |= (b & ^FileA) >> (NE + N)
-
-	attacks |= (b & ^FileH) >> (NW + N)
-	attacks |= (b & ^FileH & ^FileG) >> (NW + W)
-
-	attacks |= (b & ^FileH & ^FileG) << (NE + E)
-	attacks |= (b & ^FileH) << (NE + N)
-
-	return attacks
 }
 
 // InitKingAttacks should initialize the KingAttacks table
@@ -69,26 +29,45 @@ func InitKingAttacks() {
 	}
 }
 
-// generateKingAttacks should generate all attacks for a king in a certain square
-func generateKingAttacks(square int) Bitboard {
-	attacks := Bitboard(0)
+// InitSliderPiecesAttacks should generate all attacks for slider pieces
+func InitSliderPiecesAttacks(piece int) {
+	// loop over 64 board squares
+	for sq := A1; sq <= H8; sq++ {
+		// init bishop & rook masks
+		BishopMasks[sq] = GenerateBishopAttacks(sq)
+		RookMasks[sq] = GenerateRookAttacks(sq)
 
-	b := Bitboard(0)
-	b.Set(square)
+		// init current mask
+		var attackMask Bitboard
 
-	attacks |= (b & ^FileA) << NW
-	attacks |= b << N
-	attacks |= (b & ^FileH) << NE
+		if piece == Bishop {
+			attackMask = GenerateBishopAttacks(sq)
+		} else {
+			attackMask = GenerateRookAttacks(sq)
+		}
 
-	attacks |= (b & ^FileH) << E
+		// count attack mask bits
+		bitCount := attackMask.Count()
 
-	attacks |= (b & ^FileA) >> E
+		// occupancy variations count
+		occupancyVariations := 1 << bitCount
 
-	attacks |= (b & ^FileH) >> NW
-	attacks |= b >> N
-	attacks |= (b & ^FileA) >> NE
+		// loop over occupancy variations
+		for count := 0; count < occupancyVariations; count++ {
+			if piece == Bishop {
+				occupancy := SetOccupancy(count, bitCount, attackMask)
 
-	return attacks
+				magicIndex := occupancy * BishopMagicNumbers[sq] >> (64 - BishopRelevantBits[sq])
+				BishopAttacks[sq][magicIndex] = GenerateBishopAttacksOnTheFly(sq, occupancy)
+			} else {
+
+				occupancy := SetOccupancy(count, bitCount, attackMask)
+
+				magicIndex := occupancy * RookMagicNumbers[sq] >> (64 - RookRelevantBits[sq])
+				RookAttacks[sq][magicIndex] = GenerateRookAttacksOnTheFly(sq, occupancy)
+			}
+		}
+	}
 }
 
 // GenerateBishopAttacks should generate all attacks for a bishop in a certain square
@@ -239,48 +218,8 @@ func GenerateRookAttacksOnTheFly(square int, block Bitboard) Bitboard {
 	return attacks
 }
 
-// GenerateSliderPiecesAttacks should generate all attacks for slider pieces
-func GenerateSliderPiecesAttacks(piece int) {
-	// loop over 64 board squares
-	for sq := A1; sq <= H8; sq++ {
-		// init bishop & rook masks
-		BishopMasks[sq] = GenerateBishopAttacks(sq)
-		RookMasks[sq] = GenerateRookAttacks(sq)
-
-		// init current mask
-		var attackMask Bitboard
-
-		if piece == Bishop {
-			attackMask = GenerateBishopAttacks(sq)
-		} else {
-			attackMask = GenerateRookAttacks(sq)
-		}
-
-		// count attack mask bits
-		bitCount := attackMask.Count()
-
-		// occupancy variations count
-		occupancyVariations := 1 << bitCount
-
-		// loop over occupancy variations
-		for count := 0; count < occupancyVariations; count++ {
-			if piece == Bishop {
-				occupancy := SetOccupancy(count, bitCount, attackMask)
-
-				magicIndex := occupancy * BishopMagicNumbers[sq] >> (64 - BishopRelevantBits[sq])
-				BishopAttacks[sq][magicIndex] = GenerateBishopAttacksOnTheFly(sq, occupancy)
-			} else {
-
-				occupancy := SetOccupancy(count, bitCount, attackMask)
-
-				magicIndex := occupancy * RookMagicNumbers[sq] >> (64 - RookRelevantBits[sq])
-				RookAttacks[sq][magicIndex] = GenerateRookAttacksOnTheFly(sq, occupancy)
-			}
-		}
-	}
-}
-
-func getBishopAttacks(sq int, occupancy Bitboard) Bitboard {
+// GetBishopAttacks should return all the rook attacks for a certain square with a certain occup
+func GetBishopAttacks(sq int, occupancy Bitboard) Bitboard {
 	// calculate magic index
 	occupancy &= BishopMasks[sq]
 	occupancy *= BishopMagicNumbers[sq]
@@ -289,7 +228,8 @@ func getBishopAttacks(sq int, occupancy Bitboard) Bitboard {
 	return BishopAttacks[sq][occupancy]
 }
 
-func getRookAttacks(sq int, occupancy Bitboard) Bitboard {
+// GetRookAttacks should return all the rook attacks for a certain square with a certain occup
+func GetRookAttacks(sq int, occupancy Bitboard) Bitboard {
 	// calculate magic index
 	occupancy &= RookMasks[sq]
 	occupancy *= RookMagicNumbers[sq]
@@ -298,7 +238,8 @@ func getRookAttacks(sq int, occupancy Bitboard) Bitboard {
 	return RookAttacks[sq][occupancy]
 }
 
-func getQueenAttacks(sq int, occupancy Bitboard) Bitboard {
+// GetQueenAttacks should return all the rook attacks for a certain square with a certain occup
+func GetQueenAttacks(sq int, occupancy Bitboard) Bitboard {
 	queenAttacks := Bitboard(0)
 
 	bishopOccupancies := occupancy
@@ -315,4 +256,68 @@ func getQueenAttacks(sq int, occupancy Bitboard) Bitboard {
 	queenAttacks = BishopAttacks[sq][bishopOccupancies] | RookAttacks[sq][rookOccupancies]
 
 	return queenAttacks
+}
+
+// PRIVATE Methods
+
+// generatePawnAttacks should generate all pawn attacks provided the square and color
+func generatePawnAttacks(square int, side Color) Bitboard {
+	attacks := Bitboard(0)
+
+	b := Bitboard(0)
+	b.Set(square)
+
+	if side == WHITE {
+		attacks |= (b & ^FileA) << NW
+		attacks |= (b & ^FileH) << NE
+	} else {
+		attacks |= (b & ^FileA) >> NE
+		attacks |= (b & ^FileH) >> NW
+	}
+
+	return attacks
+}
+
+// generateKnightAttacks should generate all attacks for a knight in a certain position
+func generateKnightAttacks(square int) Bitboard {
+	attacks := Bitboard(0)
+
+	b := Bitboard(0)
+	b.Set(square)
+
+	attacks |= (b & ^FileA) << (NW + N)
+	attacks |= (b & ^FileA & ^FileB) << (NW + W)
+
+	attacks |= (b & ^FileA & ^FileB) >> (NE + E)
+	attacks |= (b & ^FileA) >> (NE + N)
+
+	attacks |= (b & ^FileH) >> (NW + N)
+	attacks |= (b & ^FileH & ^FileG) >> (NW + W)
+
+	attacks |= (b & ^FileH & ^FileG) << (NE + E)
+	attacks |= (b & ^FileH) << (NE + N)
+
+	return attacks
+}
+
+// generateKingAttacks should generate all attacks for a king in a certain square
+func generateKingAttacks(square int) Bitboard {
+	attacks := Bitboard(0)
+
+	b := Bitboard(0)
+	b.Set(square)
+
+	attacks |= (b & ^FileA) << NW
+	attacks |= b << N
+	attacks |= (b & ^FileH) << NE
+
+	attacks |= (b & ^FileH) << E
+
+	attacks |= (b & ^FileA) >> E
+
+	attacks |= (b & ^FileH) >> NW
+	attacks |= b >> N
+	attacks |= (b & ^FileA) >> NE
+
+	return attacks
 }

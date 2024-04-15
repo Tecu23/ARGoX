@@ -156,17 +156,17 @@ func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
 			return true
 		}
 
-		bishopAttacks := getBishopAttacks(sq, b.Occupancies[BOTH])
+		bishopAttacks := GetBishopAttacks(sq, b.Occupancies[BOTH])
 
 		if bishopAttacks&b.Bitboards[WB] != 0 {
 			return true
 		}
-		rookAttacks := getRookAttacks(sq, b.Occupancies[BOTH])
+		rookAttacks := GetRookAttacks(sq, b.Occupancies[BOTH])
 
 		if rookAttacks&b.Bitboards[WR] != 0 {
 			return true
 		}
-		queenAttacks := getQueenAttacks(sq, b.Occupancies[BOTH])
+		queenAttacks := GetQueenAttacks(sq, b.Occupancies[BOTH])
 
 		if queenAttacks&b.Bitboards[WQ] != 0 {
 			return true
@@ -185,17 +185,17 @@ func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
 			return true
 		}
 
-		bishopAttacks := getBishopAttacks(sq, b.Occupancies[BOTH])
+		bishopAttacks := GetBishopAttacks(sq, b.Occupancies[BOTH])
 
 		if bishopAttacks&b.Bitboards[BB] != 0 {
 			return true
 		}
-		rookAttacks := getRookAttacks(sq, b.Occupancies[BOTH])
+		rookAttacks := GetRookAttacks(sq, b.Occupancies[BOTH])
 
 		if rookAttacks&b.Bitboards[BR] != 0 {
 			return true
 		}
-		queenAttacks := getQueenAttacks(sq, b.Occupancies[BOTH])
+		queenAttacks := GetQueenAttacks(sq, b.Occupancies[BOTH])
 
 		if queenAttacks&b.Bitboards[BQ] != 0 {
 			return true

@@ -234,7 +234,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getBishopAttacks(
+					attacks = GetBishopAttacks(
 						sourceSq,
 						b.Occupancies[BOTH],
 					) & (^b.Occupancies[WHITE])
@@ -257,7 +257,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getBishopAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+					attacks = GetBishopAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
 
 					for attacks != 0 {
 						targetSq = attacks.FirstOne()
@@ -280,7 +280,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getRookAttacks(
+					attacks = GetRookAttacks(
 						sourceSq,
 						b.Occupancies[BOTH],
 					) & (^b.Occupancies[WHITE])
@@ -303,7 +303,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getRookAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+					attacks = GetRookAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
 
 					for attacks != 0 {
 						targetSq = attacks.FirstOne()
@@ -326,7 +326,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getQueenAttacks(
+					attacks = GetQueenAttacks(
 						sourceSq,
 						b.Occupancies[BOTH],
 					) & (^b.Occupancies[WHITE])
@@ -349,7 +349,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					sourceSq = bitboard.FirstOne()
 
 					// init piece attacks
-					attacks = getQueenAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
+					attacks = GetQueenAttacks(sourceSq, b.Occupancies[BOTH]) & (^b.Occupancies[BLACK])
 
 					for attacks != 0 {
 						targetSq = attacks.FirstOne()
