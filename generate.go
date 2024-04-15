@@ -80,7 +80,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					// make sure square between king and king's rook are empty
 					if !b.Occupancies[BOTH].Test(F1) && !b.Occupancies[BOTH].Test(G1) {
 						// make sure king and the f1 square are not under attack
-						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(F1, BLACK) {
+						if !b.IsSquareAttacked(E1, BLACK) && !b.IsSquareAttacked(F1, BLACK) {
 							movelist.AddMove(EncodeMove(E1, G1, piece, 0, 0, 0, 0, 1))
 						}
 					}
@@ -92,7 +92,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !b.Occupancies[BOTH].Test(D1) && !b.Occupancies[BOTH].Test(C1) &&
 						!b.Occupancies[BOTH].Test(B1) {
 						// make sure king and the f1 square are not under attack
-						if !b.isSquareAttacked(E1, BLACK) && !b.isSquareAttacked(D1, BLACK) {
+						if !b.IsSquareAttacked(E1, BLACK) && !b.IsSquareAttacked(D1, BLACK) {
 							movelist.AddMove(EncodeMove(E1, C1, piece, 0, 0, 0, 0, 1))
 						}
 					}
@@ -163,7 +163,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					// make sure square between king and king's rook are empty
 					if !b.Occupancies[BOTH].Test(F8) && !b.Occupancies[BOTH].Test(G8) {
 						// make sure king and the f1 square are not under attack
-						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(F8, WHITE) {
+						if !b.IsSquareAttacked(E8, WHITE) && !b.IsSquareAttacked(F8, WHITE) {
 							movelist.AddMove(EncodeMove(E8, G8, piece, 0, 0, 0, 0, 1))
 						}
 					}
@@ -175,7 +175,7 @@ func (b *BoardStruct) generateMoves(movelist *Movelist) {
 					if !b.Occupancies[BOTH].Test(D8) && !b.Occupancies[BOTH].Test(C8) &&
 						!b.Occupancies[BOTH].Test(B8) {
 						// make sure king and the f1 square are not under attack
-						if !b.isSquareAttacked(E8, WHITE) && !b.isSquareAttacked(D8, WHITE) {
+						if !b.IsSquareAttacked(E8, WHITE) && !b.IsSquareAttacked(D8, WHITE) {
 							movelist.AddMove(EncodeMove(E8, C8, piece, 0, 0, 0, 0, 1))
 						}
 					}

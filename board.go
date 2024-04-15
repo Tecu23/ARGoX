@@ -32,33 +32,6 @@ func InitRandomHashKeys() {
 	SideKey = generateRandomUint64Number(&randomState)
 }
 
-func (b *BoardStruct) generateHashKey() uint64 {
-	finalKey := uint64(0)
-
-	bb := Bitboard(0)
-
-	for p := WP; p <= BK; p++ {
-		bb = b.Bitboards[p]
-
-		for bb != 0 {
-			sq := bb.FirstOne()
-			finalKey ^= PieceKeys[p][sq]
-		}
-	}
-
-	if b.EnPassant != -1 {
-		finalKey ^= EnpassantKeys[b.EnPassant]
-	}
-
-	finalKey ^= CastlingKeys[b.Castlings]
-
-	if b.SideToMove == BLACK {
-		finalKey ^= SideKey
-	}
-
-	return finalKey
-}
-
 // BoardStruct represent a board representation
 type BoardStruct struct {
 	Bitboards [12]Bitboard // define piece bitboards
@@ -141,8 +114,8 @@ func (b *BoardStruct) SetSq(piece, sq int) {
 	b.Occupancies[BOTH] |= b.Occupancies[BLACK]
 }
 
-// isSquareAttacked should return whether the given square is attacked by the curren given side
-func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
+// IsSquareAttacked should return whether the given square is attacked by the curren given side
+func (b *BoardStruct) IsSquareAttacked(sq int, side Color) bool {
 	if side == WHITE {
 		if PawnAttacks[BLACK][sq]&b.Bitboards[WP] != 0 {
 			return true
@@ -204,34 +177,6 @@ func (b *BoardStruct) isSquareAttacked(sq int, side Color) bool {
 	return false
 }
 
-// ShowAttackedSquares should print all squares that are currently being attacked
-func (b *BoardStruct) ShowAttackedSquares(side Color) {
-	for rank := 7; rank >= 0; rank-- {
-		for file := 0; file < 8; file++ {
-			sq := rank*8 + file
-
-			if file == 0 {
-				fmt.Printf(" %d ", rank+1)
-			}
-
-			if b.isSquareAttacked(sq, side) {
-				fmt.Printf(" %d", 1)
-			} else {
-				fmt.Printf(" %d", 0)
-			}
-		}
-
-		fmt.Printf("\n")
-	}
-	fmt.Printf("\n     a b c d e f g h\n\n")
-}
-
-// AllMoves and OnlyCaptures flags
-const (
-	AllMoves     = 0
-	OnlyCaptures = 1
-)
-
 // MakeMove should make a move on the board
 // TODO: Refactor this method for performance
 func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
@@ -284,7 +229,7 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 				}
 				kingPos = b.Bitboards[WK].FirstOne()
 			}
-			if b.isSquareAttacked(kingPos, b.SideToMove) {
+			if b.IsSquareAttacked(kingPos, b.SideToMove) {
 				// take back
 				b.TakeBack(copyB)
 				return false
@@ -365,7 +310,7 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 			}
 			kingPos = b.Bitboards[WK].FirstOne()
 		}
-		if b.isSquareAttacked(kingPos, b.SideToMove) {
+		if b.IsSquareAttacked(kingPos, b.SideToMove) {
 			// take back
 			b.TakeBack(copyB)
 			return false
@@ -375,22 +320,18 @@ func (b *BoardStruct) MakeMove(m Move, moveFlag int) bool {
 		} else {
 			b.Bitboards[WK].Set(kingPos)
 		}
-
 	} else { // capture moves
 		if m.GetCapture() != 0 {
 			return b.MakeMove(m, AllMoves)
 		}
-
 		return false // 0 means don't make it
 	}
-
 	return true
 }
 
 // ParseMove should parse user/GUI move string input (e.g. e7e8q)
 func (b *BoardStruct) ParseMove(moveString string) Move {
 	var moves Movelist
-
 	b.generateMoves(&moves)
 
 	src := Fen2Sq[moveString[:2]]
@@ -406,27 +347,20 @@ func (b *BoardStruct) ParseMove(moveString string) Move {
 				if (prom == WQ || prom == BQ) && moveString[4] == 'q' {
 					return mv
 				}
-
 				if (prom == WR || prom == BR) && moveString[4] == 'r' {
 					return mv
 				}
-
 				if (prom == WB || prom == BB) && moveString[4] == 'b' {
 					return mv
 				}
-
 				if (prom == WN || prom == BN) && moveString[4] == 'n' {
 					return mv
 				}
-
-				// continue the loop on wrong promotions
-				continue
+				continue // continue the loop on wrong promotions
 			}
-
 			return mv
 		}
 	}
-
 	return NoMove
 }
 
@@ -472,4 +406,55 @@ func (b BoardStruct) PrintBoard() {
 	fmt.Printf(" Castling:  %s\n\n", b.Castlings.String())
 
 	fmt.Printf(" HashKey: 0x%X\n\n", b.Key)
+}
+
+// ShowAttackedSquares should print all squares that are currently being attacked
+func (b *BoardStruct) ShowAttackedSquares(side Color) {
+	for rank := 7; rank >= 0; rank-- {
+		for file := 0; file < 8; file++ {
+			sq := rank*8 + file
+
+			if file == 0 {
+				fmt.Printf(" %d ", rank+1)
+			}
+
+			if b.IsSquareAttacked(sq, side) {
+				fmt.Printf(" %d", 1)
+			} else {
+				fmt.Printf(" %d", 0)
+			}
+		}
+
+		fmt.Printf("\n")
+	}
+	fmt.Printf("\n     a b c d e f g h\n\n")
+}
+
+// PRIVATE Methods
+
+func (b *BoardStruct) generateHashKey() uint64 {
+	finalKey := uint64(0)
+
+	bb := Bitboard(0)
+
+	for p := WP; p <= BK; p++ {
+		bb = b.Bitboards[p]
+
+		for bb != 0 {
+			sq := bb.FirstOne()
+			finalKey ^= PieceKeys[p][sq]
+		}
+	}
+
+	if b.EnPassant != -1 {
+		finalKey ^= EnpassantKeys[b.EnPassant]
+	}
+
+	finalKey ^= CastlingKeys[b.Castlings]
+
+	if b.SideToMove == BLACK {
+		finalKey ^= SideKey
+	}
+
+	return finalKey
 }

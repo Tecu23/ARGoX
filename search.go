@@ -233,7 +233,7 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 		bit = bits.TrailingZeros64(uint64(b.Bitboards[BK]))
 	}
 
-	inCheck := b.isSquareAttacked(bit, b.SideToMove.Opp())
+	inCheck := b.IsSquareAttacked(bit, b.SideToMove.Opp())
 
 	// increase search depth if the king has been exposed to a check
 	if inCheck {

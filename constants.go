@@ -306,7 +306,53 @@ func InitFen2Sq() {
 	Sq2Fen[-1] = "-"
 }
 
-/*  EVALUATION CONSTANTS */
+/*
+*
+*
+*           MOVE CONSTANTS
+*
+*
+ */
+// AllMoves and OnlyCaptures flags
+const (
+	AllMoves     = 0
+	OnlyCaptures = 1
+)
+
+/*
+*
+*
+*           CASTLINGS CONSTANTS
+*
+*
+ */
+/*
+- 0001 -- 1 -> white king can castle to the king side
+- 0010 -- 2 -> white king can castle to the queen side
+- 0100 -- 4 -> black king can castle to the king side
+- 1000 -- 8 -> black king can castle to the queen side
+
+ex.
+
+	    1111 -> both side can castle in both directons
+
+		1001 -> black king => queen side
+		     -> white king => king side
+*/
+const (
+	ShortW = uint(0x1)
+	LongW  = uint(0x2)
+	ShortB = uint(0x4)
+	LongB  = uint(0x8)
+)
+
+/*
+*
+*
+*           EVALUATION CONSTANTS
+*
+*
+ */
 
 // MaterialScore represent the value of each piece
 var MaterialScore = make([]int, 12)
@@ -328,7 +374,13 @@ func InitMaterialScore() {
 	MaterialScore[BK] = -10000
 }
 
-/*  SEARCH CONSTANTS */
+/*
+*
+*
+*           SEARCH CONSTANT
+*
+*
+ */
 
 // most valuable victim & less valuable attacker
 
