@@ -23,12 +23,15 @@ type searchLimits struct {
 }
 
 func (s *searchLimits) Init() {
-	s.Depth = -1
 	s.MovesToGo = 30
 	s.MoveTime = -1
-	s.Infinite = false
+	s.Time = -1
+	s.Inc = 0
+	s.StartTime = 0
+	s.StopTime = 0
 	s.Timeset = false
 	s.Stop = false
+	s.Infinite = false
 }
 
 // SetStop sets the value of the stop flag

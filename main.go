@@ -17,7 +17,7 @@ func main() {
 
 	if *debug {
 		board := BoardStruct{}
-		ParseFEN(&board, "8/p6p/p6p/8/8/P7/PPP5/8 w - - ")
+		ParseFEN(&board, CmkPosition)
 		board.PrintBoard()
 		score := board.EvaluatePosition()
 		fmt.Printf("Score:%d\n", score)
@@ -40,7 +40,6 @@ func initHelpers() {
 	InitSliderPiecesAttacks(Bishop) // bishop
 	InitSliderPiecesAttacks(Rook)   // rook
 
-	InitMaterialScore()
 	InitRandomHashKeys()
 	TransTable.Clear()
 	InitEvaluationMasks()

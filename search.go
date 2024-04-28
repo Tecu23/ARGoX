@@ -404,17 +404,19 @@ func (b *BoardStruct) SearchPosition(depth int) Move {
 		alpha = score - 50
 		beta = score + 50
 
-		if score > -MateScore && score < -MateScore {
-			fmt.Printf(
-				"info score mate %d depth %d nodes %d pv ",
-				-(score+MateValue)/2-1,
-				currDepth,
-				nodes,
-			)
-		} else if score > MateScore && score < MateValue {
-			fmt.Printf("info score mate %d depth %d nodes %d pv ", (MateValue-score)/2+1, currDepth, nodes)
-		} else {
-			fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
+		if PvLength[0] != 0 {
+			if score > -MateScore && score < -MateScore {
+				fmt.Printf(
+					"info score mate %d depth %d nodes %d pv ",
+					-(score+MateValue)/2-1,
+					currDepth,
+					nodes,
+				)
+			} else if score > MateScore && score < MateValue {
+				fmt.Printf("info score mate %d depth %d nodes %d pv ", (MateValue-score)/2+1, currDepth, nodes)
+			} else {
+				fmt.Printf("info score cp %d depth %d nodes %d pv ", score, currDepth, nodes)
+			}
 		}
 
 		for i := 0; i < PvLength[0]; i++ {

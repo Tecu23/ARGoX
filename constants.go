@@ -349,34 +349,6 @@ const (
 /*
 *
 *
-*           EVALUATION CONSTANTS
-*
-*
- */
-
-// MaterialScore represent the value of each piece
-var MaterialScore = make([]int, 12)
-
-// InitMaterialScore should initialize the material score
-func InitMaterialScore() {
-	MaterialScore[WP] = 100
-	MaterialScore[WN] = 300
-	MaterialScore[WB] = 350
-	MaterialScore[WR] = 500
-	MaterialScore[WQ] = 1000
-	MaterialScore[WK] = 10000
-
-	MaterialScore[BP] = -100
-	MaterialScore[BN] = -300
-	MaterialScore[BB] = -350
-	MaterialScore[BR] = -500
-	MaterialScore[BQ] = -1000
-	MaterialScore[BK] = -10000
-}
-
-/*
-*
-*
 *           SEARCH CONSTANT
 *
 *
