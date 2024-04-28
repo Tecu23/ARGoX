@@ -316,7 +316,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 		gamePhase = Endgame
 	}
 
-	score := 0
+	score, scoreOpening, scoreEndgame := 0, 0, 0
 	pc, sq := 0, 0
 	// doublePawns := 0
 
@@ -327,32 +327,15 @@ func (b *BoardStruct) EvaluatePosition() int {
 			pc = bbPc
 			sq = bb.FirstOne()
 
-			/* Now in order to calculate interpolated score
-			   for a given phase we use this formula
-			   (same for material and position score):
-
-			   (
-			       scoreOpening * gamePhaseScore +
-			       scoreEndgame * (openingPhaseScore - gamePhaseScore)
-			   ) / openingPhaseScore
-
-			   e.g. the score for pawn of d4 at phase 500 would be
-			   interpScore = ( 12 * 5000 + (-7) * (6192 - 5000)) / 6192 = 8.342377...
-			*/
-			if gamePhase == Middlegame {
-				score += (MaterialScore[Opening][pc]*gamePhaseScore + MaterialScore[Endgame][pc]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-			} else {
-				score += MaterialScore[gamePhase][pc]
-			}
+			scoreOpening += MaterialScore[Opening][pc]
+			scoreEndgame += MaterialScore[Endgame][pc]
 
 			switch pc {
 			// evaluare white pieces
 			case WP:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][Pawn][sq]*gamePhaseScore + PositionalScore[Endgame][Pawn][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][Pawn][sq]
-				}
+				scoreOpening += PositionalScore[Opening][Pawn][sq]
+				scoreEndgame += PositionalScore[Endgame][Pawn][sq]
+
 				// doublePawns = (b.Bitboards[WP] & FileMasks[sq]).Count()
 				// if doublePawns > 1 {
 				// 	score += doublePawns * doublePawnPenalty
@@ -367,25 +350,17 @@ func (b *BoardStruct) EvaluatePosition() int {
 				// }
 				//
 			case WN:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][Knight][sq]*gamePhaseScore + PositionalScore[Endgame][Knight][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][Knight][sq]
-				}
+				scoreOpening += PositionalScore[Opening][Knight][sq]
+				scoreEndgame += PositionalScore[Endgame][Knight][sq]
+
 			case WB:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][Bishop][sq]*gamePhaseScore + PositionalScore[Endgame][Bishop][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][Bishop][sq]
-				}
+				scoreOpening += PositionalScore[Opening][Bishop][sq]
+				scoreEndgame += PositionalScore[Endgame][Bishop][sq]
 
 				// score += GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WR:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][Rook][sq]*gamePhaseScore + PositionalScore[Endgame][Rook][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][Rook][sq]
-				}
+				scoreOpening += PositionalScore[Opening][Rook][sq]
+				scoreEndgame += PositionalScore[Endgame][Rook][sq]
 
 				// if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
 				// 	score += semiOpenFileScore
@@ -395,18 +370,13 @@ func (b *BoardStruct) EvaluatePosition() int {
 				// 	score += openFileScore
 				// }
 			case WQ:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][Queen][sq]*gamePhaseScore + PositionalScore[Endgame][Queen][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][Queen][sq]
-				}
+				scoreOpening += PositionalScore[Opening][Queen][sq]
+				scoreEndgame += PositionalScore[Endgame][Queen][sq]
+
 				// score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 			case WK:
-				if gamePhase == Middlegame {
-					score += (PositionalScore[Opening][King][sq]*gamePhaseScore + PositionalScore[Endgame][King][sq]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score += PositionalScore[gamePhase][King][sq]
-				}
+				scoreOpening += PositionalScore[Opening][King][sq]
+				scoreEndgame += PositionalScore[Endgame][King][sq]
 
 				// if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
 				// 	score -= semiOpenFileScore
@@ -419,11 +389,8 @@ func (b *BoardStruct) EvaluatePosition() int {
 				// score += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * kingShieldBonus
 			// evaluate black pieces
 			case BP:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][Pawn][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][Pawn][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][Pawn][mirrorScore[sq]]
-				}
+				scoreOpening -= PositionalScore[Opening][Pawn][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][Pawn][mirrorScore[sq]]
 
 				// doublePawns = (b.Bitboards[BP] & FileMasks[sq]).Count()
 				// if doublePawns > 1 {
@@ -438,25 +405,17 @@ func (b *BoardStruct) EvaluatePosition() int {
 				// 	score -= passedPawnBonus[getRank[mirrorScore[sq]]]
 				// }
 			case BN:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][Knight][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][Knight][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][Knight][mirrorScore[sq]]
-				}
+				scoreOpening -= PositionalScore[Opening][Knight][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][Knight][mirrorScore[sq]]
+
 			case BB:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][Bishop][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][Bishop][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][Bishop][mirrorScore[sq]]
-				}
+				scoreOpening -= PositionalScore[Opening][Bishop][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][Bishop][mirrorScore[sq]]
 
 				// score -= GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
 			case BR:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][Rook][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][Rook][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][Rook][mirrorScore[sq]]
-				}
+				scoreOpening -= PositionalScore[Opening][Rook][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][Rook][mirrorScore[sq]]
 
 				// if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
 				// 	score -= semiOpenFileScore
@@ -466,19 +425,13 @@ func (b *BoardStruct) EvaluatePosition() int {
 				// 	score -= openFileScore
 				// }
 			case BQ:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][Queen][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][Queen][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][Queen][mirrorScore[sq]]
-				}
-				// score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+				scoreOpening -= PositionalScore[Opening][Queen][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][Queen][mirrorScore[sq]]
 
+				// score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
 			case BK:
-				if gamePhase == Middlegame {
-					score -= (PositionalScore[Opening][King][mirrorScore[sq]]*gamePhaseScore + PositionalScore[Endgame][King][mirrorScore[sq]]*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
-				} else {
-					score -= PositionalScore[gamePhase][King][mirrorScore[sq]]
-				}
+				scoreOpening -= PositionalScore[Opening][King][mirrorScore[sq]]
+				scoreEndgame -= PositionalScore[Endgame][King][mirrorScore[sq]]
 
 				// if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
 				// 	score += semiOpenFileScore
@@ -492,6 +445,29 @@ func (b *BoardStruct) EvaluatePosition() int {
 			}
 		}
 	}
+	/*
+	   Now in order to calculate interpolated score
+	   for a given game phase we use this formula
+	   (same for material and positional scores):
+
+	   (
+	     score_opening * game_phase_score +
+	     score_endgame * (opening_phase_score - game_phase_score)
+	   ) / opening_phase_score
+
+	   E.g. the score for pawn on d4 at phase say 5000 would be
+	   interpolated_score = (12 * 5000 + (-7) * (6192 - 5000)) / 6192 = 8,342377261
+	*/
+
+	// interpolate score in the middlegame
+	if gamePhase == Middlegame {
+		score = (scoreOpening*gamePhaseScore + scoreEndgame*(OpeningPhaseScore-gamePhaseScore)) / OpeningPhaseScore
+	} else if gamePhase == Opening {
+		score = scoreOpening
+	} else {
+		score = scoreEndgame
+	}
+
 	if b.SideToMove == WHITE {
 		return score
 	}

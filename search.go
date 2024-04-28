@@ -193,6 +193,9 @@ func (b *BoardStruct) quiescence(alpha, beta int) int {
 
 // negamax alpha beta search
 func (b *BoardStruct) negamax(alpha, beta, depth int) int {
+
+	PvLength[Ply] = Ply // init PV length
+
 	score := 0
 	hashFlag := HashfAlpha
 
@@ -213,8 +216,6 @@ func (b *BoardStruct) negamax(alpha, beta, depth int) int {
 			Limits.SetStop(true)
 		}
 	}
-
-	PvLength[Ply] = Ply // init PV length
 
 	if depth == 0 { // base case
 		return b.quiescence(alpha, beta)
