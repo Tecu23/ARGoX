@@ -424,8 +424,8 @@ func (b *BoardStruct) EvaluatePosition() int {
 				}
 
 				if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
-					scoreOpening -= passedPawnBonus[getRank[mirrorScore[sq]]]
-					scoreEndgame -= passedPawnBonus[getRank[mirrorScore[sq]]]
+					scoreOpening -= passedPawnBonus[getRank[sq]]
+					scoreEndgame -= passedPawnBonus[getRank[sq]]
 				}
 			case BN:
 				scoreOpening -= PositionalScore[Opening][Knight][mirrorScore[sq]]
