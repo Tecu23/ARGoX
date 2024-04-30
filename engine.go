@@ -30,6 +30,10 @@ func root(toEng chan bool, frEng chan string, b *BoardStruct) {
 				Limits.Time -= 50
 			}
 			Limits.StopTime = Limits.StartTime + int64(Limits.Time) + int64(Limits.Inc)
+
+			if Limits.Time < 1500 && Limits.Inc != 0 && Limits.Depth == 64 {
+				Limits.StopTime = Limits.StartTime + int64(Limits.Inc) - 50
+			}
 		}
 
 		// if depth not available use 64 as default

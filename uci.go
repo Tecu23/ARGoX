@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var saveBm Move
+var saveBm string
 
 // ParsePosition should parse the position command
 func (b *BoardStruct) ParsePosition(cmd string) error {
@@ -215,12 +215,12 @@ func (b *BoardStruct) ParseGo(cmd string, toEng chan bool) error {
 
 func handleBm(bm string) {
 	if Limits.Infinite {
-		if saveBm != NoMove {
-			// TODO: Handle this
-			// saveBm = bm
+		if saveBm != "bestmove a1a1" {
+			saveBm = bm
 			return
 		}
 	}
+
 	fmt.Println(bm)
 }
 
@@ -271,9 +271,9 @@ func Uci(input chan string) {
 			fmt.Printf("ponderhit command not implemented yet\n")
 		case "stop":
 			if Limits.Infinite {
-				if saveBm != NoMove {
+				if saveBm != "bestmove a1a1" {
 					// fmt.Println(saveBm)
-					saveBm = NoMove
+					saveBm = "bestmove a1a1"
 				}
 				Limits.Infinite = false
 			}

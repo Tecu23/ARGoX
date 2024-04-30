@@ -42,8 +42,8 @@ const (
 var PositionalScore = [2][6][64]int{
 
 	// opening positional piece scores //
-	//pawn
 	{
+		//pawn
 		{
 			0, 0, 0, 0, 0, 0, 0, 0,
 			-35, -1, -20, -23, -15, 24, 38, -22,
@@ -117,9 +117,8 @@ var PositionalScore = [2][6][64]int{
 	},
 
 	// Endgame positional piece scores //
-
-	//pawn
 	{
+		//pawn
 		{
 			0, 0, 0, 0, 0, 0, 0, 0,
 			13, 8, 8, 10, 13, 0, 2, -7,
@@ -231,12 +230,23 @@ var passedPawnBonus = [8]int{0, 10, 30, 50, 75, 100, 150, 200}
 
 const (
 	// Penalties for pawn positions
-	doublePawnPenalty   = -10
-	isolatedPawnPenalty = -10
+	doublePawnPenaltyOpening   = -5
+	doublePawnPenaltyEndgame   = -10
+	isolatedPawnPenaltyOpening = -5
+	isolatedPawnPenaltyEndgame = -10
 	// Open and semi open file scores
 	openFileScore     = 15
 	semiOpenFileScore = 10
-	kingShieldBonus   = 5
+	// mobility units
+	bishopUnit = 4
+	queenUnit  = 9
+
+	bishopMobilityOpening = 5
+	bishopMobilityEndgame = 5
+	queenMobilityOpening  = 1
+	queenMobilityEndgame  = 2
+
+	kingShieldBonus = 5
 )
 
 // InitEvaluationMasks should initialize the evaluation masks
@@ -318,7 +328,7 @@ func (b *BoardStruct) EvaluatePosition() int {
 
 	score, scoreOpening, scoreEndgame := 0, 0, 0
 	pc, sq := 0, 0
-	// doublePawns := 0
+	doublePawns := 0
 
 	for bbPc := WP; bbPc <= BK; bbPc++ {
 		bb = b.Bitboards[bbPc]
@@ -336,19 +346,21 @@ func (b *BoardStruct) EvaluatePosition() int {
 				scoreOpening += PositionalScore[Opening][Pawn][sq]
 				scoreEndgame += PositionalScore[Endgame][Pawn][sq]
 
-				// doublePawns = (b.Bitboards[WP] & FileMasks[sq]).Count()
-				// if doublePawns > 1 {
-				// 	score += doublePawns * doublePawnPenalty
-				// }
-				//
-				// if (b.Bitboards[WP] & IsolatedMasks[sq]) == 0 {
-				// 	score += isolatedPawnPenalty
-				// }
-				//
-				// if (WhitePassedMasks[sq] & b.Bitboards[BP]) == 0 {
-				// 	score += passedPawnBonus[getRank[sq]]
-				// }
-				//
+				doublePawns = (b.Bitboards[WP] & FileMasks[sq]).Count()
+				if doublePawns > 1 {
+					scoreOpening += (doublePawns - 1) * doublePawnPenaltyOpening
+					scoreEndgame += (doublePawns - 1) * doublePawnPenaltyEndgame
+				}
+
+				if (b.Bitboards[WP] & IsolatedMasks[sq]) == 0 {
+					scoreOpening += isolatedPawnPenaltyOpening
+					scoreEndgame += isolatedPawnPenaltyEndgame
+				}
+
+				if (WhitePassedMasks[sq] & b.Bitboards[BP]) == 0 {
+					scoreOpening += passedPawnBonus[getRank[sq]]
+					scoreEndgame += passedPawnBonus[getRank[sq]]
+				}
 			case WN:
 				scoreOpening += PositionalScore[Opening][Knight][sq]
 				scoreEndgame += PositionalScore[Endgame][Knight][sq]
@@ -357,53 +369,64 @@ func (b *BoardStruct) EvaluatePosition() int {
 				scoreOpening += PositionalScore[Opening][Bishop][sq]
 				scoreEndgame += PositionalScore[Endgame][Bishop][sq]
 
-				// score += GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
+				scoreOpening += (GetBishopAttacks(sq, b.Occupancies[BOTH]).Count() - bishopUnit) * bishopMobilityOpening
+				scoreEndgame += (GetBishopAttacks(sq, b.Occupancies[BOTH]).Count() - bishopUnit) * bishopMobilityEndgame
 			case WR:
 				scoreOpening += PositionalScore[Opening][Rook][sq]
 				scoreEndgame += PositionalScore[Endgame][Rook][sq]
 
-				// if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
-				// 	score += semiOpenFileScore
-				// }
-				//
-				// if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-				// 	score += openFileScore
-				// }
+				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
+					scoreOpening += semiOpenFileScore
+					scoreEndgame += semiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					scoreOpening += openFileScore
+					scoreEndgame += openFileScore
+				}
 			case WQ:
 				scoreOpening += PositionalScore[Opening][Queen][sq]
 				scoreEndgame += PositionalScore[Endgame][Queen][sq]
 
-				// score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+				scoreOpening += (GetQueenAttacks(sq, b.Occupancies[BOTH]).Count() - queenUnit) * queenMobilityOpening
+				scoreEndgame += (GetQueenAttacks(sq, b.Occupancies[BOTH]).Count() - queenUnit) * queenMobilityEndgame
 			case WK:
 				scoreOpening += PositionalScore[Opening][King][sq]
 				scoreEndgame += PositionalScore[Endgame][King][sq]
 
-				// if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
-				// 	score -= semiOpenFileScore
-				// }
-				//
-				// if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-				// 	score -= openFileScore
-				// }
-				//
-				// score += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * kingShieldBonus
+				if (b.Bitboards[WP] & FileMasks[sq]) == 0 {
+					scoreOpening -= semiOpenFileScore
+					scoreEndgame -= semiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					scoreOpening -= openFileScore
+					scoreEndgame -= openFileScore
+				}
+
+				scoreOpening += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * kingShieldBonus
+				scoreEndgame += (KingAttacks[sq] & b.Occupancies[WHITE]).Count() * kingShieldBonus
+
 			// evaluate black pieces
 			case BP:
 				scoreOpening -= PositionalScore[Opening][Pawn][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][Pawn][mirrorScore[sq]]
 
-				// doublePawns = (b.Bitboards[BP] & FileMasks[sq]).Count()
-				// if doublePawns > 1 {
-				// 	score -= doublePawns * doublePawnPenalty
-				// }
-				//
-				// if (b.Bitboards[BP] & IsolatedMasks[sq]) == 0 {
-				// 	score -= isolatedPawnPenalty
-				// }
-				//
-				// if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
-				// 	score -= passedPawnBonus[getRank[mirrorScore[sq]]]
-				// }
+				doublePawns = (b.Bitboards[BP] & FileMasks[sq]).Count()
+				if doublePawns > 1 {
+					scoreOpening -= (doublePawns - 1) * doublePawnPenaltyOpening
+					scoreEndgame -= (doublePawns - 1) * doublePawnPenaltyEndgame
+				}
+
+				if (b.Bitboards[BP] & IsolatedMasks[sq]) == 0 {
+					scoreOpening -= isolatedPawnPenaltyOpening
+					scoreEndgame -= isolatedPawnPenaltyEndgame
+				}
+
+				if (BlackPassedMasks[sq] & b.Bitboards[WP]) == 0 {
+					scoreOpening -= passedPawnBonus[getRank[mirrorScore[sq]]]
+					scoreEndgame -= passedPawnBonus[getRank[mirrorScore[sq]]]
+				}
 			case BN:
 				scoreOpening -= PositionalScore[Opening][Knight][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][Knight][mirrorScore[sq]]
@@ -412,36 +435,43 @@ func (b *BoardStruct) EvaluatePosition() int {
 				scoreOpening -= PositionalScore[Opening][Bishop][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][Bishop][mirrorScore[sq]]
 
-				// score -= GetBishopAttacks(sq, b.Occupancies[BOTH]).Count()
+				scoreOpening -= (GetBishopAttacks(sq, b.Occupancies[BOTH]).Count() - bishopUnit) * bishopMobilityOpening
+				scoreEndgame -= (GetBishopAttacks(sq, b.Occupancies[BOTH]).Count() - bishopUnit) * bishopMobilityEndgame
 			case BR:
 				scoreOpening -= PositionalScore[Opening][Rook][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][Rook][mirrorScore[sq]]
 
-				// if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
-				// 	score -= semiOpenFileScore
-				// }
-				//
-				// if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-				// 	score -= openFileScore
-				// }
+				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
+					scoreOpening -= semiOpenFileScore
+					scoreEndgame -= semiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					scoreOpening -= openFileScore
+					scoreEndgame -= openFileScore
+				}
 			case BQ:
 				scoreOpening -= PositionalScore[Opening][Queen][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][Queen][mirrorScore[sq]]
 
-				// score += GetQueenAttacks(sq, b.Occupancies[BOTH]).Count()
+				scoreOpening -= (GetQueenAttacks(sq, b.Occupancies[BOTH]).Count() - queenUnit) * queenMobilityOpening
+				scoreEndgame -= (GetQueenAttacks(sq, b.Occupancies[BOTH]).Count() - queenUnit) * queenMobilityEndgame
 			case BK:
 				scoreOpening -= PositionalScore[Opening][King][mirrorScore[sq]]
 				scoreEndgame -= PositionalScore[Endgame][King][mirrorScore[sq]]
 
-				// if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
-				// 	score += semiOpenFileScore
-				// }
-				//
-				// if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
-				// 	score += openFileScore
-				// }
-				//
-				// score -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * kingShieldBonus
+				if (b.Bitboards[BP] & FileMasks[sq]) == 0 {
+					scoreOpening += semiOpenFileScore
+					scoreEndgame += semiOpenFileScore
+				}
+
+				if ((b.Bitboards[WP] | b.Bitboards[BP]) & FileMasks[sq]) == 0 {
+					scoreOpening += openFileScore
+					scoreEndgame += openFileScore
+				}
+
+				scoreOpening -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * kingShieldBonus
+				scoreEndgame -= (KingAttacks[sq] & b.Occupancies[BLACK]).Count() * kingShieldBonus
 			}
 		}
 	}
