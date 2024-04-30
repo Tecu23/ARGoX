@@ -11,3 +11,5 @@ ARGoX is a chess engine implemented in Go (Golang), designed to play chess games
 ## Playing the engine via Websocket connection
 
 ## Limitations
+
+TODO: Get Rating tested for engine
